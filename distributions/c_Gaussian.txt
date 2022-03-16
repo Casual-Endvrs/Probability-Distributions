@@ -1,0 +1,5 @@
+{
+    "title": "Overview: Gaussian Distribution", 
+    "description": 
+        "This is where the general information about the Gaussian distribution goes."
+}
