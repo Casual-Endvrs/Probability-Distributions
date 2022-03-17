@@ -1,12 +1,13 @@
 import streamlit as st
 import numpy as np
-from math import isclose
 import plotly.graph_objects as go
 from pyprojroot import here as get_proj_root
 import os
-import json
 
-from distributions import c_Gaussian
+from distributions.c_Gaussian import Gaussian_distribution
+from distributions.c_Beta import Beta_distribution
+from distributions.d_Poisson import Poisson_distribution
+
 from distributions.animations import (
     run_simulation,
     plot_add_dists,
@@ -21,22 +22,66 @@ from distributions.animations import (
 # sldr - slider
 
 
+def load_txt(fil: str) -> dict:
+    """Reads in text from a file and parses it into text_key and text_body. A
+        dictionary is returned using text_key as the key values and text_body 
+        as the dictionary entries. The text file is parsed into text_key and 
+        text_body using the following separators:
+
+        $---$   --> Separates each text_key and text_body.
+        #---#   --> Separates each text_key/text_body pair for the next pair.
+
+    :param str fil: String providing the absolute path of the file.
+    :dict: A dictionary of the text_key:text_body entries as created from the 
+        text file.
+    """
+    with open(fil, "r") as f:
+        text = f.readlines()
+
+    text = "".join(text)
+    text = text.split("#---#")
+
+    if text[0].strip() == "":
+        del text[0]
+
+    text_dic = {}
+    for entry in text:
+        entry = entry.split("$---$")
+        text_dic[entry[0].strip()] = entry[1].strip()
+
+    # for i, entry in enumerate(text):
+    #     entry = entry.split("$---$")
+    #     text_dic["title_" + str(i)] = entry[0].strip()
+    #     text_dic["description_" + str(i)] = entry[1].strip()
+
+    return text_dic
+
+
+def test_plot_rqrs_reframe(st_state_session: st.session_state):
+    rng_diff = np.abs(st.session_state["plot_range"] - st.session_state["target_range"])
+    dmn_diff = np.abs(
+        st.session_state["plot_domain"] - st.session_state["target_domain"]
+    )
+
+    return np.max([rng_diff, dmn_diff]) > 1e-3
+
+
 def app():
     if "dist_text" not in st.session_state:
         proj_root = get_proj_root()
-        fil = os.path.join(proj_root, "distributions", "c_Gaussian.txt")
-        print(fil)
-        with open(fil, "r") as f:
-            st.session_state["dist_text"] = json.load(f)
+        fil = os.path.join(proj_root, "text_files", "c_Gaussian.txt")
+        st.session_state["dist_text"] = load_txt(fil)
     if "dist" not in st.session_state:
-        st.session_state["dist"] = c_Gaussian.Gaussian_distribution(
+        st.session_state["dist"] = Gaussian_distribution(
             key_root="dist", session_state=st.session_state
         )
     dist = st.session_state["dist"]
 
+    st.header(st.session_state["dist_text"]["main_title"])
+
     # * ddb - General information about Gaussian distribution
-    with st.expander(st.session_state["dist_text"]["title"], expanded=True):
-        st.write(st.session_state["dist_text"]["description"])
+    with st.expander(st.session_state["dist_text"]["lvl_0_title"], expanded=True):
+        st.write(st.session_state["dist_text"]["lvl_0_text"])
 
     dist.create_sliders()
     x_rng = dist.get_plot_range()
@@ -131,29 +176,11 @@ def app():
         args=(st.session_state, [dist], rvs_p_frame),
     )
 
-    if (
-        not isclose(
-            st.session_state["plot_range"][0],
-            st.session_state["target_range"][0],
-            abs_tol=1e-3,
-        )
-        or not isclose(
-            st.session_state["plot_range"][1],
-            st.session_state["target_range"][1],
-            abs_tol=1e-3,
-        )
-        or not isclose(
-            st.session_state["plot_domain"][0],
-            st.session_state["target_domain"][0],
-            abs_tol=1e-3,
-        )
-        or not isclose(
-            st.session_state["plot_domain"][1],
-            st.session_state["target_domain"][1],
-            abs_tol=1e-3,
-        )
-    ):
-        smooth_zooming_animation(
-            st_session_state=st.session_state, animation_duration=1.5,
-        )
+    # * ddb - General information about Gaussian distribution
+    with st.expander(st.session_state["dist_text"]["lvl_1_title"], expanded=True):
+        st.write(st.session_state["dist_text"]["lvl_1_text"])
 
+    if test_plot_rqrs_reframe(st.session_state):
+        smooth_zooming_animation(
+            st_session_state=st.session_state, animation_duration=2,
+        )

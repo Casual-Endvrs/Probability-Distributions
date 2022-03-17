@@ -98,8 +98,6 @@ def smooth_zoom_step(
     domain_start = np.array(st.session_state["plot_domain"])
 
     # get final domain and range for the plot
-    # range_stop = np.array(st.session_state["target_range"])
-    # domain_stop = np.array(st.session_state["target_domain"])
     range_stop = get_plot_range(figure, oversize_factor=1)
     domain_stop = get_plot_domain(figure)
 
@@ -118,7 +116,7 @@ def smooth_zoom_step(
     domain_start += dmn_ss
 
     # update plot
-    update_range_domain(range_start, domain_start, st_session_state)
+    update_plt_rng_dmn(range_start, domain_start, st_session_state)
     st_plotly_chart.plotly_chart(figure)
 
 
@@ -152,13 +150,15 @@ def smooth_zooming_animation(
     nxt_frame_tm = time.time()
     for i in np.arange(step_factor):
         nxt_frame_tm += frame_time
-        plt_rng = range_start + rng_diff * sigmoid(15 * i / step_factor - 7.5)
-        plt_dmn = domain_start + dmn_diff * sigmoid(15 * i / step_factor - 7.5)
-        update_range_domain(plt_rng, plt_dmn, st_session_state)
+        sigmoid_x = sigmoid(16 * i / step_factor - 8)
+        plt_rng = range_start + rng_diff * sigmoid_x
+        plt_dmn = domain_start + dmn_diff * sigmoid_x
+        update_plt_rng_dmn(plt_rng, plt_dmn, st_session_state)
         st_plotly_chart.plotly_chart(figure)
         delay_until_time(nxt_frame_tm)
 
-    update_session_state_rng_dmn(plt_rng, plt_dmn, st_session_state)
+    update_plt_rng_dmn(range_stop, domain_stop, st_session_state)
+    st_plotly_chart.plotly_chart(figure)
 
 
 def set_target_rng_dmn(st_session_state: st.session_state, dists: list):
@@ -195,24 +195,19 @@ def get_plot_domain(figure: go.Figure, oversize_factor: float = 1.075) -> np.nda
     return np.array([np.min(y_data), np.max(y_data)]) * oversize_factor
 
 
-def update_range_domain(
-    x_range: np.ndarray, y_domain: np.ndarray, st_session_state: st.session_state
+def update_plt_rng_dmn(
+    x_range: np.ndarray, y_domain: np.ndarray, st_session_state: st.session_state,
 ):
-    update_plt_rng_dmn(x_range, y_domain, st_session_state)
-    update_session_state_rng_dmn(x_range, y_domain, st_session_state)
+    st_session_state["plot_range"] = x_range
+    st_session_state["plot_domain"] = y_domain
+    st_session_state["go_Figure"].update_xaxes(range=x_range)
+    st_session_state["go_Figure"].update_yaxes(range=y_domain)
 
 
 def delay_until_time(delay_until: time.time):
     while True:
         if time.time() >= delay_until:
             break
-
-
-def update_session_state_rng_dmn(
-    x_range: np.ndarray, y_domain: np.ndarray, st_session_state: st.session_state,
-):
-    st_session_state["plot_range"] = x_range
-    st_session_state["plot_domain"] = y_domain
 
 
 def get_dists_range(dists: list, oversize_factor: float = 1.075) -> np.ndarray:
@@ -233,15 +228,6 @@ def get_dists_domains(dists: list, oversize_factor: float = 1.075) -> np.ndarray
     return (
         np.array([np.min(domains), np.max(domains)], dtype=np.float) * oversize_factor
     )
-
-
-def update_plt_rng_dmn(
-    x_range: np.ndarray, y_domain: np.ndarray, st_session_state: st.session_state,
-):
-    st_session_state["plot_range"] = x_range
-    st_session_state["plot_domain"] = y_domain
-    st_session_state["go_Figure"].update_xaxes(range=x_range)
-    st_session_state["go_Figure"].update_yaxes(range=y_domain)
 
 
 def sigmoid(x: float) -> float:
