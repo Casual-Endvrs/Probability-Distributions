@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from pyprojroot import here as get_proj_root
 import os
 
-from helpers.text_input import load_dict_txt
+from helpers.helper_fns import load_dict_txt, test_keys_in_dict
 
 from distributions.c_Gaussian import Gaussian_distribution
 from distributions.c_Beta import Beta_distribution
@@ -34,21 +34,21 @@ def test_plot_rqrs_reframe(st_state_session: st.session_state):
 
 
 def app():
-    if "dist_text" not in st.session_state:
+    if "Gauss_txt_dict" not in st.session_state:
         proj_root = get_proj_root()
         fil = os.path.join(proj_root, "text_files", "c_Gaussian.txt")
-        st.session_state["dist_text"] = load_dict_txt(fil)
+        (st.session_state["Gauss_txt_dict"]) = load_dict_txt(fil)
     if "dist" not in st.session_state:
         st.session_state["dist"] = Gaussian_distribution(
             key_root="dist", session_state=st.session_state
         )
     dist = st.session_state["dist"]
 
-    st.header(st.session_state["dist_text"]["main_title"])
+    st.header(st.session_state["Gauss_txt_dict"]["main_title"])
 
     # * ddb - General information about Gaussian distribution
-    with st.expander(st.session_state["dist_text"]["lvl_0_title"], expanded=True):
-        st.write(st.session_state["dist_text"]["lvl_0_text"])
+    with st.expander(st.session_state["Gauss_txt_dict"]["lvl_0_title"], expanded=True):
+        st.write(st.session_state["Gauss_txt_dict"]["lvl_0_text"])
 
     dist.create_sliders()
     x_rng = dist.get_plot_range()
@@ -144,8 +144,8 @@ def app():
     )
 
     # * ddb - General information about Gaussian distribution
-    with st.expander(st.session_state["dist_text"]["lvl_1_title"], expanded=True):
-        st.write(st.session_state["dist_text"]["lvl_1_text"])
+    with st.expander(st.session_state["Gauss_txt_dict"]["lvl_1_title"], expanded=True):
+        st.write(st.session_state["Gauss_txt_dict"]["lvl_1_text"])
 
     if test_plot_rqrs_reframe(st.session_state):
         smooth_zooming_animation(
