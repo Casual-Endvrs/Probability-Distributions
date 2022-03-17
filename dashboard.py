@@ -1,5 +1,5 @@
 import streamlit as st
-from multiapp import MultiApp
+from helpers.multiapp import MultiApp
 from apps import Gaussian_app
 
 app = MultiApp()

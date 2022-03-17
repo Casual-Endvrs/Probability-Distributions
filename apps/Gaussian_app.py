@@ -4,6 +4,8 @@ import plotly.graph_objects as go
 from pyprojroot import here as get_proj_root
 import os
 
+from helpers.text_input import load_dict_txt
+
 from distributions.c_Gaussian import Gaussian_distribution
 from distributions.c_Beta import Beta_distribution
 from distributions.d_Poisson import Poisson_distribution
@@ -22,41 +24,6 @@ from distributions.animations import (
 # sldr - slider
 
 
-def load_txt(fil: str) -> dict:
-    """Reads in text from a file and parses it into text_key and text_body. A
-        dictionary is returned using text_key as the key values and text_body 
-        as the dictionary entries. The text file is parsed into text_key and 
-        text_body using the following separators:
-
-        $---$   --> Separates each text_key and text_body.
-        #---#   --> Separates each text_key/text_body pair for the next pair.
-
-    :param str fil: String providing the absolute path of the file.
-    :dict: A dictionary of the text_key:text_body entries as created from the 
-        text file.
-    """
-    with open(fil, "r") as f:
-        text = f.readlines()
-
-    text = "".join(text)
-    text = text.split("#---#")
-
-    if text[0].strip() == "":
-        del text[0]
-
-    text_dic = {}
-    for entry in text:
-        entry = entry.split("$---$")
-        text_dic[entry[0].strip()] = entry[1].strip()
-
-    # for i, entry in enumerate(text):
-    #     entry = entry.split("$---$")
-    #     text_dic["title_" + str(i)] = entry[0].strip()
-    #     text_dic["description_" + str(i)] = entry[1].strip()
-
-    return text_dic
-
-
 def test_plot_rqrs_reframe(st_state_session: st.session_state):
     rng_diff = np.abs(st.session_state["plot_range"] - st.session_state["target_range"])
     dmn_diff = np.abs(
@@ -70,7 +37,7 @@ def app():
     if "dist_text" not in st.session_state:
         proj_root = get_proj_root()
         fil = os.path.join(proj_root, "text_files", "c_Gaussian.txt")
-        st.session_state["dist_text"] = load_txt(fil)
+        st.session_state["dist_text"] = load_dict_txt(fil)
     if "dist" not in st.session_state:
         st.session_state["dist"] = Gaussian_distribution(
             key_root="dist", session_state=st.session_state

@@ -135,10 +135,6 @@ def smooth_zooming_animation(
     range_stop = np.array(st.session_state["target_range"])
     domain_stop = np.array(st.session_state["target_domain"])
 
-    step_factor = int(30 * animation_duration)
-
-    frame_time = animation_duration / step_factor
-
     # create step sizes
     rng_diff = np.array(
         [range_stop[0] - range_start[0], range_stop[1] - range_start[1]]
@@ -147,10 +143,13 @@ def smooth_zooming_animation(
         [domain_stop[0] - domain_start[0], domain_stop[1] - domain_start[1]]
     )
 
+    num_steps = int(30 * animation_duration)
+    frame_time = animation_duration / num_steps
+
     nxt_frame_tm = time.time()
-    for i in np.arange(step_factor):
+    for i in np.arange(num_steps):
         nxt_frame_tm += frame_time
-        sigmoid_x = sigmoid(16 * i / step_factor - 8)
+        sigmoid_x = sigmoid(16 * i / num_steps - 8)
         plt_rng = range_start + rng_diff * sigmoid_x
         plt_dmn = domain_start + dmn_diff * sigmoid_x
         update_plt_rng_dmn(plt_rng, plt_dmn, st_session_state)
