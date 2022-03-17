@@ -1,0 +1,18 @@
+
+#---#
+
+software_usage 
+$---$ 
+This dashboard is intended to provide a basic introduction to different probability distributions. Each page relates to a single distribution and contains 4 main parts:
+    1) Information about the distribution,
+    2) Controls to change the properties of the distribution,
+    3) A simulation where random numbers are generated using the distribution, and
+    4) A plot that shows the current distribution based on its current properties and any simulation results.
+
+All text boxes can be collapsed so only the information that you find helpful will be left open.
+
+The following pages may, but not necessarily, provide information at several different levels. These include:
+    1) Overview - Introduces the distribution and provides some useful information about it,
+    2) Level 1 - No math, no prior expectations and easy going. A discussion about a minimum number of concepts/topics with the intent to be intuitive in nature. (Great if you're here to see what's happening and want to stay in the shallow end of the pool.)
+    3) Level 2 - Covers important topics and expands on the Level 1 discussion by including some mathematics. (Covers information that is necessary and useful when reading other tutorials or articles. Establishes a base of understanding. Aimed at those who want to have enough understanding to use established tools.)
+    4) Level 3 - Important topics are covered rigorously with mathematics here. (Intended for those who want to understand the nuts and bolts of the topic and want to be able to develope from the ground up.)
