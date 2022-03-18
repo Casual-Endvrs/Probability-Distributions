@@ -4,13 +4,11 @@ import plotly.graph_objects as go
 from pyprojroot import here as get_proj_root
 import os
 
-from helpers.helper_fns import load_dict_txt, test_keys_in_dict
+from helpers.helper_fns import load_dict_txt, st_expandable_box
 
 from distributions.c_Gaussian import Gaussian_distribution
-from distributions.c_Beta import Beta_distribution
-from distributions.d_Poisson import Poisson_distribution
 
-from distributions.animations import (
+from helpers.animations import (
     run_simulation,
     plot_add_dists,
     get_dists_range,
@@ -37,18 +35,17 @@ def app():
     if "Gauss_txt_dict" not in st.session_state:
         proj_root = get_proj_root()
         fil = os.path.join(proj_root, "text_files", "c_Gaussian.txt")
-        (st.session_state["Gauss_txt_dict"]) = load_dict_txt(fil)
-    if "dist" not in st.session_state:
-        st.session_state["dist"] = Gaussian_distribution(
-            key_root="dist", session_state=st.session_state
+        st.session_state["Gauss_txt_dict"] = load_dict_txt(fil)
+    if "gaussian_dist" not in st.session_state:
+        st.session_state["gaussian_dist"] = Gaussian_distribution(
+            key_root="gaussian_dist", session_state=st.session_state
         )
-    dist = st.session_state["dist"]
+    dist = st.session_state["gaussian_dist"]
 
     st.header(st.session_state["Gauss_txt_dict"]["main_title"])
 
-    # * ddb - General information about Gaussian distribution
-    with st.expander(st.session_state["Gauss_txt_dict"]["lvl_0_title"], expanded=True):
-        st.write(st.session_state["Gauss_txt_dict"]["lvl_0_text"])
+    # * ddb - General information about distribution
+    st_expandable_box(st.session_state["Gauss_txt_dict"], "lvl_0_title", "lvl_0_text")
 
     dist.create_sliders()
     x_rng = dist.get_plot_range()
@@ -143,9 +140,8 @@ def app():
         args=(st.session_state, [dist], rvs_p_frame),
     )
 
-    # * ddb - General information about Gaussian distribution
-    with st.expander(st.session_state["Gauss_txt_dict"]["lvl_1_title"], expanded=True):
-        st.write(st.session_state["Gauss_txt_dict"]["lvl_1_text"])
+    # * ddb - General information about distribution
+    st_expandable_box(st.session_state["Gauss_txt_dict"], "lvl_1_title", "lvl_1_text")
 
     if test_plot_rqrs_reframe(st.session_state):
         smooth_zooming_animation(
