@@ -1,0 +1,25 @@
+
+#---#
+
+
+main_title $---$ Poisson Distribution - Discrete
+
+#---#
+
+lvl_0_title $---$ Overview: Gaussian Distribution
+
+#---#
+
+lvl_0_text $---$ This is where the general information about the Gaussian distribution goes.
+
+This is a second sentence.
+
+#---#
+
+lvl_1_title $---$ Another Section
+
+#---#
+
+lvl_1_text $---$ Would you look at that, more text!
+
+This is the last sentence.
