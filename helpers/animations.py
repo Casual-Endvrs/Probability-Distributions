@@ -73,21 +73,23 @@ def run_simulation(  #! changed input variables
                 dist.simulation_iter(num_frame_samples)
                 dist.update_sim_plot_data(figure, plt_idxs[idx])
 
-            smooth_zoom_step(st.session_state, 30)
+            smooth_zoom_step(st.session_state, 30, dists=dists)
 
             frame_tm += frame_dur
             frame_num += 1
             if frame_num > ttl_frames:
                 break
 
-    set_target_rng_dmn(st_session_state, dists)
+    set_target_rng_dmn(st_session_state, dists=dists)
     smooth_zooming_animation(
-        st_session_state=st_session_state, animation_duration=0.5,
+        st_session_state=st_session_state, animation_duration=0.5, dists=dists
     )
 
 
 def smooth_zoom_step(
-    st_session_state: st.session_state, step_factor: int = 30,
+    st_session_state: st.session_state,
+    step_factor: int = 30,
+    dists: Optional[list] = None,
 ):
     # get required plot variables
     st_plotly_chart = st_session_state["st_plotly_chart"]
@@ -98,8 +100,8 @@ def smooth_zoom_step(
     domain_start = np.array(st.session_state["plot_domain"])
 
     # get final domain and range for the plot
-    range_stop = get_plot_range(figure, oversize_factor=1)
-    domain_stop = get_plot_domain(figure)
+    range_stop = get_range(figure, dists=dists, oversize_factor=1)
+    domain_stop = get_domain(figure, dists=dists, oversize_factor=1.075)
 
     # create step sizes
     rng_ss = (
@@ -121,7 +123,9 @@ def smooth_zoom_step(
 
 
 def smooth_zooming_animation(
-    st_session_state: st.session_state, animation_duration: float = 1,
+    st_session_state: st.session_state,
+    animation_duration: float = 1,
+    dists: Optional[list] = None,
 ):
     # get required plot variables
     st_plotly_chart = st_session_state["st_plotly_chart"]
@@ -132,8 +136,8 @@ def smooth_zooming_animation(
     domain_start = np.array(st.session_state["plot_domain"])
 
     # get final domain and range for the plot
-    range_stop = np.array(st.session_state["target_range"])
-    domain_stop = np.array(st.session_state["target_domain"])
+    range_stop = get_range(figure, dists=dists, oversize_factor=1)
+    domain_stop = get_domain(figure, dists=dists, oversize_factor=1.075)
 
     # create step sizes
     rng_diff = np.array(
@@ -172,6 +176,32 @@ def plot_use_ssn_stt_rng_dmn(st_session_state: st.session_state):
     y_domain = st_session_state["plot_domain"]
     update_plt_rng_dmn(x_range, y_domain, st_session_state)
     st_session_state["st_plotly_chart"].plotly_chart(st_session_state["go_Figure"])
+
+
+def get_range(
+    figure: Optional[go.Figure] = None,
+    dists: Optional[list] = None,
+    oversize_factor: Optional[float] = 1.075,
+) -> np.ndarray:
+    if dists is not None:
+        return get_dists_range(dists, oversize_factor)
+    elif figure is not None:
+        return get_plot_range(figure, oversize_factor)
+    else:
+        return np.array([0, 1])
+
+
+def get_domain(
+    figure: Optional[go.Figure] = None,
+    dists: Optional[list] = None,
+    oversize_factor: Optional[float] = 1.075,
+) -> np.ndarray:
+    if dists is not None:
+        return get_dists_domains(dists, oversize_factor)
+    elif figure is not None:
+        return get_plot_domain(figure, oversize_factor)
+    else:
+        return np.array([0, 1])
 
 
 def get_plot_range(figure: go.Figure, oversize_factor: float = 1.075) -> np.ndarray:
