@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, List
 import streamlit as st
 import scipy.stats as stats
 import numpy as np
@@ -73,13 +73,13 @@ class Uniform_distribution:
         return self.dist.cdf(x)
 
     def range_probability(
-        self, x_0: Union[list, np.ndarray, tuple, float], x_1: Optional[float] = None
+        self, x_0: Union[List, np.ndarray, tuple, float], x_1: Optional[float] = None
     ) -> float:  # cdf of the distribution over the range x_0 --> x_1
         """Returns a single float value for the probability of obtaining a 
             value between x_0 and x_1 for the ideal distribution, i.e. based 
             on the mathematical definition of the distribution.
 
-        :param Union[list, np.ndarray, tuple, float] x_0: This can be either 
+        :param Union[List, np.ndarray, tuple, float] x_0: This can be either 
             the initial value of the range of interest or a list of two values 
             specifying the initial and final values of the range.
         :param Optional[float] x_1 (optional): The final value for the range
@@ -108,12 +108,12 @@ class Uniform_distribution:
         return np.sum(self.sim_bins_cnts[bins]) / self.sim_total_entries
 
     def sim_range_probability(
-        self, x_0: Union[list, np.ndarray, tuple, float], x_1: Optional[float] = None
+        self, x_0: Union[List, np.ndarray, tuple, float], x_1: Optional[float] = None
     ) -> float:  # cdf of the simulation results
         """Returns a single float value for the probability of obtaining a 
             value between x_0 and x_1 for the simulation results.
 
-        :param Union[list, np.ndarray, tuple, float] x_0: This can be either 
+        :param Union[List, np.ndarray, tuple, float] x_0: This can be either 
             the initial value of the range of interest or a list of two values 
             specifying the initial and final values of the range.
         :param Optional[float] x_1 (optional): The final value for the range
@@ -178,11 +178,11 @@ class Uniform_distribution:
         self.sim_total_entries += num_samples
 
     def reset_sim(
-        self, bin_rng: Optional[list[float]] = None
+        self, bin_rng: Optional[List[float]] = None
     ):  # updates the distribution to reflect current values and resets all the relevant variables for the simulation
         """Resets internal variables to prepare for a new simulation run.
 
-        :param Optional[list[float]] bin_rng (optional): A list of values 
+        :param Optional[List[float]] bin_rng (optional): A list of values 
             indicating the limits of the bins used to split up the simulation 
             results. If N bin limits are provided, N-1 bins will be made. 
             Defaults to None.
@@ -296,13 +296,13 @@ class Uniform_distribution:
     def _get_sim_bins_normalized(
         self,
     ) -> Optional[
-        list
+        List
     ]:  # returns the current sim_bins counts normalized to match the distribution curve
         """If a simulation has been run, returns the number of entries in each 
             bin, normalized by the total number of random values used in the 
             simulation.
 
-        :Optional[list]: If a simulation has been run a list of float values 
+        :Optional[List]: If a simulation has been run a list of float values 
             will be returned. If no simulation has been run, None is returned.
         """
         if self.sim_total_entries == 0:
