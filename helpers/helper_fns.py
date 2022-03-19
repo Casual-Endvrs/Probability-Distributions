@@ -1,5 +1,5 @@
 import streamlit as st
-from typing import Optional
+from typing import Optional, List
 import numpy as np
 import os
 
@@ -38,7 +38,7 @@ def load_dict_txt(fil: str) -> dict:
     return text_dic
 
 
-def text_keys_in_dict(dictionary: dict, *keys: list[str]) -> bool:
+def text_keys_in_dict(dictionary: dict, *keys: List[str]) -> bool:
     results = []
     for key in keys:
         results.append(key in dictionary)

@@ -1,12 +1,12 @@
 import streamlit as st
 import plotly.graph_objects as go
 import time
-from typing import Optional
+from typing import Optional, List
 import numpy as np
 import math
 
 
-def plot_add_dists(st_session_state: st.session_state, dists: list):
+def plot_add_dists(st_session_state: st.session_state, dists: List):
     figure = st_session_state["go_Figure"]
     for dist in dists:
         figure = dist.plot_distribution(figure)
@@ -21,7 +21,7 @@ def plot_figure(st_session_state: st.session_state):
 
 def run_simulation(  #! changed input variables
     st_session_state: st.session_state,
-    dists: list,
+    dists: List,
     num_frame_samples: Optional[int] = 100,
     sim_dur: Optional[int] = 5,
 ):
@@ -29,7 +29,7 @@ def run_simulation(  #! changed input variables
         versus simulated results of random variables.
 
     :param st.plotly_chart st_figure: Clean plot to put the results on.
-    :param list dists: A list of distributions to plot PMF/PDF and simulation
+    :param List dists: A list of distributions to plot PMF/PDF and simulation
         results.
     :param Optional[int] num_frame_samples (optional): Number of random 
         random variables to generate for each frame of the simulation. Defaults 
@@ -89,7 +89,7 @@ def run_simulation(  #! changed input variables
 def smooth_zoom_step(
     st_session_state: st.session_state,
     step_factor: int = 30,
-    dists: Optional[list] = None,
+    dists: Optional[List] = None,
 ):
     # get required plot variables
     st_plotly_chart = st_session_state["st_plotly_chart"]
@@ -125,7 +125,7 @@ def smooth_zoom_step(
 def smooth_zooming_animation(
     st_session_state: st.session_state,
     animation_duration: float = 1,
-    dists: Optional[list] = None,
+    dists: Optional[List] = None,
 ):
     # get required plot variables
     st_plotly_chart = st_session_state["st_plotly_chart"]
@@ -180,7 +180,7 @@ def plot_use_ssn_stt_rng_dmn(st_session_state: st.session_state):
 
 def get_range(
     figure: Optional[go.Figure] = None,
-    dists: Optional[list] = None,
+    dists: Optional[List] = None,
     oversize_factor: Optional[float] = 1.075,
 ) -> np.ndarray:
     if dists is not None:
@@ -193,7 +193,7 @@ def get_range(
 
 def get_domain(
     figure: Optional[go.Figure] = None,
-    dists: Optional[list] = None,
+    dists: Optional[List] = None,
     oversize_factor: Optional[float] = 1.075,
 ) -> np.ndarray:
     if dists is not None:
@@ -239,7 +239,7 @@ def delay_until_time(delay_until: time.time):
             break
 
 
-def get_dists_range(dists: list, oversize_factor: float = 1.075) -> np.ndarray:
+def get_dists_range(dists: List, oversize_factor: float = 1.075) -> np.ndarray:
     ranges = []
 
     for dist in dists:
@@ -248,7 +248,7 @@ def get_dists_range(dists: list, oversize_factor: float = 1.075) -> np.ndarray:
     return np.array([np.min(ranges), np.max(ranges)], dtype=np.float) * oversize_factor
 
 
-def get_dists_domains(dists: list, oversize_factor: float = 1.075) -> np.ndarray:
+def get_dists_domains(dists: List, oversize_factor: float = 1.075) -> np.ndarray:
     domains = []
 
     for dist in dists:
