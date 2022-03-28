@@ -45,6 +45,13 @@ class Bernoulli_distribution:
 
         self.plot_dist_clr = None  # specifies the color of the distribution in the plot
         self.plot_sim_clr = None  # specifies the color of the simulation in the plot
+        
+        self.x_label = "Random Outcome"
+        self.y_label = "Probability"
+        self.x_tick_markers = [
+            [0, 1], 
+            ["Failure", "Success"]
+        ]
 
         self.reset_sim()
         self._update_dist_pdf()

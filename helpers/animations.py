@@ -6,9 +6,22 @@ import numpy as np
 import math
 
 
-def create_new_figure() :
+def create_new_figure(dist = None) :
     figure = go.Figure()
     figure.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+    if dist is not None :
+        x_label = None
+        y_label = None 
+        if hasattr(dist, "x_label") :
+            x_label = dist.x_label
+        if hasattr(dist, "y_label") :
+            y_label = dist.y_label
+        figure.update_layout(
+            xaxis_title = x_label,
+            yaxis_title = y_label
+        )
+        if hasattr(dist, "x_tick_markers") :
+            figure.update_layout(xaxis = dict(tickvals = dist.x_tick_markers[0], ticktext=dist.x_tick_markers[1]))
     return figure
 
 def plot_add_dists(st_session_state: st.session_state, dists: List):
@@ -54,7 +67,7 @@ def run_simulation(  #! changed input variables
     )  # total number of frames for the animation to run over
     frame_tm = time.time()  # time to display next frame
     frame_num = 1  # current frame number
-    figure = create_new_figure()  # Figure to plot on
+    figure = create_new_figure(dists[0])  # Figure to plot on
     st_session_state["go_Figure"] = figure
 
     # update the figure with the distribution
@@ -211,22 +224,22 @@ def get_domain(
 
 def get_plot_range(figure: go.Figure, oversize_factor: float = 1.075) -> np.ndarray:
     fig_data = figure["data"]
-    x_data = []
+    y_data = []
 
     for i in np.arange(len(fig_data)):
-        x_data.extend(fig_data[i]["x"])
+        y_data.extend(fig_data[i]["x"])
 
-    return np.array([np.min(x_data), np.max(x_data)]) * oversize_factor
+    return np.array([np.min(y_data), np.max(y_data)]) * oversize_factor
 
 
 def get_plot_domain(figure: go.Figure, oversize_factor: float = 1.075) -> np.ndarray:
     fig_data = figure["data"]
-    y_data = []
+    x_data = []
 
     for i in np.arange(len(fig_data)):
-        y_data.extend(fig_data[i]["y"])
+        x_data.extend(fig_data[i]["y"])
 
-    return np.array([np.min(y_data), np.max(y_data)]) * oversize_factor
+    return np.array([np.min(x_data), np.max(x_data)]) * oversize_factor
 
 
 def update_plt_rng_dmn(

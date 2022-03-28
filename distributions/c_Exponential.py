@@ -36,6 +36,9 @@ class Exponential_distribution:
 
         self.plot_dist_clr = None  # specifies the color of the distribution in the plot
         self.plot_sim_clr = None  # specifies the color of the simulation in the plot
+        
+        self.x_label = ""
+        self.y_label = "Probability Density"
 
         self.reset_sim()
         self._update_dist_pdf()

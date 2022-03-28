@@ -79,7 +79,7 @@ def app():
 
     #! working
 
-    st.session_state["go_Figure"] = create_new_figure()
+    st.session_state["go_Figure"] = create_new_figure(dist)
     fig = st.session_state["go_Figure"]
     st.session_state["st_plotly_chart"] = st.plotly_chart(fig, use_container_width=True)
 
@@ -145,5 +145,5 @@ def app():
 
     if test_plot_rqrs_reframe(st.session_state):
         smooth_zooming_animation(
-            st_session_state=st.session_state, animation_duration=2,
+            st_session_state=st.session_state, animation_duration=2, dists=[dist]
         )
