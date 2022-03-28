@@ -6,6 +6,11 @@ import numpy as np
 import math
 
 
+def create_new_figure() :
+    figure = go.Figure()
+    figure.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
+    return figure
+
 def plot_add_dists(st_session_state: st.session_state, dists: List):
     figure = st_session_state["go_Figure"]
     for dist in dists:
@@ -49,7 +54,7 @@ def run_simulation(  #! changed input variables
     )  # total number of frames for the animation to run over
     frame_tm = time.time()  # time to display next frame
     frame_num = 1  # current frame number
-    figure = go.Figure()  # Figure to plot on
+    figure = create_new_figure()  # Figure to plot on
     st_session_state["go_Figure"] = figure
 
     # update the figure with the distribution
@@ -73,7 +78,7 @@ def run_simulation(  #! changed input variables
                 dist.simulation_iter(num_frame_samples)
                 dist.update_sim_plot_data(figure, plt_idxs[idx])
 
-            smooth_zoom_step(st.session_state, 30, dists=dists)
+            smooth_zoom_step(st_session_state, 30, dists=dists)
 
             frame_tm += frame_dur
             frame_num += 1
@@ -93,11 +98,11 @@ def smooth_zoom_step(
 ):
     # get required plot variables
     st_plotly_chart = st_session_state["st_plotly_chart"]
-    figure = st.session_state["go_Figure"]
+    figure = st_session_state["go_Figure"]
 
     # get initial domain and range for the current plot
-    range_start = np.array(st.session_state["plot_range"])
-    domain_start = np.array(st.session_state["plot_domain"])
+    range_start = np.array(st_session_state["plot_range"])
+    domain_start = np.array(st_session_state["plot_domain"])
 
     # get final domain and range for the plot
     range_stop = get_range(figure, dists=dists, oversize_factor=1)
@@ -129,11 +134,11 @@ def smooth_zooming_animation(
 ):
     # get required plot variables
     st_plotly_chart = st_session_state["st_plotly_chart"]
-    figure = st.session_state["go_Figure"]
+    figure = st_session_state["go_Figure"]
 
     # get initial domain and range for the current plot
-    range_start = np.array(st.session_state["plot_range"])
-    domain_start = np.array(st.session_state["plot_domain"])
+    range_start = np.array(st_session_state["plot_range"])
+    domain_start = np.array(st_session_state["plot_domain"])
 
     # get final domain and range for the plot
     range_stop = get_range(figure, dists=dists, oversize_factor=1)

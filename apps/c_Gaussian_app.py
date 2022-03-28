@@ -16,6 +16,7 @@ from helpers.animations import (
     update_plt_rng_dmn,
     plot_figure,
     smooth_zooming_animation,
+    create_new_figure
 )
 
 # ddb - drop down box
@@ -79,7 +80,7 @@ def app():
 
     #! working
 
-    st.session_state["go_Figure"] = go.Figure()
+    st.session_state["go_Figure"] = create_new_figure()
     fig = st.session_state["go_Figure"]
     st.session_state["st_plotly_chart"] = st.plotly_chart(fig, use_container_width=True)
 
