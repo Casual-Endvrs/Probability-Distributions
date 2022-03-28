@@ -43,7 +43,7 @@ class Gaussian_distribution:
     def create_sliders(self):  # create the required class sliders
         """Creates the sliders that are required to define the distribution.
         """
-        classes = ["Mean", "Variance"]
+        classes = ["Mean", "Standard Deviation"]
         rngs = [[-5.0, 5.0], [0.1, 5.0]]
         for i in np.arange(2):
             slider_text = classes[i]  # "Class: " + str(i + 1)
