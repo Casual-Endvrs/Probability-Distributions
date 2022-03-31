@@ -51,11 +51,12 @@ def st_expandable_box(
     title_key: str,
     text_markdown: Optional[str] = None,
     text_latex: Optional[str] = None,
+    expanded=True
 ):
     keys = [key for key in [text_markdown, text_latex] if key is not None]
 
     if text_keys_in_dict(txt_dict, *keys):
-        with st.expander(txt_dict[title_key], expanded=True):
+        with st.expander(txt_dict[title_key], expanded=expanded):
             if text_markdown is not None:
                 st.markdown(txt_dict[text_markdown])
             if text_latex is not None:
