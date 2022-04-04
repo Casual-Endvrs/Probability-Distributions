@@ -7,7 +7,9 @@ import plotly.graph_objects as go
 
 class Uniform_distribution:
     def __init__(
-        self, key_root: str, session_state,
+        self,
+        key_root: str,
+        session_state,
     ):
         self.initialization_errors = []
 
@@ -18,6 +20,7 @@ class Uniform_distribution:
         self.dist_pdf = (
             None  # an array of the distributions PMF/PDF based on sim_bins_mid
         )
+        self.dist_pdf_max = 0  # max value of the distributions PMF/PDF
         self.dist_type = "continuous"  # specifies "discrete" vs "continuous"
         self.slider_keys = []  # keys to access slider values in st.session_state
         self.sim_num_bins = None  # total number of bins for simulation
@@ -33,7 +36,9 @@ class Uniform_distribution:
 
         self.plot_dist_clr = None  # specifies the color of the distribution in the plot
         self.plot_sim_clr = None  # specifies the color of the simulation in the plot
-        
+
+        self.dist_stats = None  # [mean, variance, skew, kurtosis]
+
         self.x_label = "Random Value"
         self.y_label = "Probability Density"
 
@@ -41,8 +46,11 @@ class Uniform_distribution:
         self._update_dist_pdf()
 
     def create_sliders(self):  # create the required class sliders
-        """Creates the sliders that are required to define the distribution.
-        """
+        """Creates the sliders that are required to define the distribution."""
+        st.checkbox(
+            "Plot Distribution Mean", value=False, key=self.key_root + "_plot-mean"
+        )
+
         classes = ["Lowest Value", "Distribution Width"]
         rngs = [[-5.0, 5.0], [0.1, 5.0]]
         for i in np.arange(2):
@@ -66,8 +74,8 @@ class Uniform_distribution:
                 self.slider_keys.append(ref_label)
 
     def cdf(self, x: float) -> float:  # cdf of the distribution from -infinity to x
-        """Returns the probability of obtaining a random value between 
-            -infinity and x for the mathematical definition of the 
+        """Returns the probability of obtaining a random value between
+            -infinity and x for the mathematical definition of the
             distribution.
 
         :param float x: Upper limit for value range.
@@ -78,15 +86,15 @@ class Uniform_distribution:
     def range_probability(
         self, x_0: Union[List, np.ndarray, tuple, float], x_1: Optional[float] = None
     ) -> float:  # cdf of the distribution over the range x_0 --> x_1
-        """Returns a single float value for the probability of obtaining a 
-            value between x_0 and x_1 for the ideal distribution, i.e. based 
+        """Returns a single float value for the probability of obtaining a
+            value between x_0 and x_1 for the ideal distribution, i.e. based
             on the mathematical definition of the distribution.
 
-        :param Union[List, np.ndarray, tuple, float] x_0: This can be either 
-            the initial value of the range of interest or a list of two values 
+        :param Union[List, np.ndarray, tuple, float] x_0: This can be either
+            the initial value of the range of interest or a list of two values
             specifying the initial and final values of the range.
         :param Optional[float] x_1 (optional): The final value for the range
-            of interest. If left as None, then x_0 must be a list specifying 
+            of interest. If left as None, then x_0 must be a list specifying
             the initial and final points of the range. Defaults to None.
         :float: Probability of obtaining a value between x_0 & x_1.
         """
@@ -100,7 +108,7 @@ class Uniform_distribution:
         return cdf_1 - cdf_0
 
     def sim_cdf(self, x: float) -> float:  # cdf of the simulation from -infinity to x
-        """Returns the probability of obtaining a random value between 
+        """Returns the probability of obtaining a random value between
             -infinity and x for the simulation results.
 
         :param float x: Upper limit for value range.
@@ -113,14 +121,14 @@ class Uniform_distribution:
     def sim_range_probability(
         self, x_0: Union[List, np.ndarray, tuple, float], x_1: Optional[float] = None
     ) -> float:  # cdf of the simulation results
-        """Returns a single float value for the probability of obtaining a 
+        """Returns a single float value for the probability of obtaining a
             value between x_0 and x_1 for the simulation results.
 
-        :param Union[List, np.ndarray, tuple, float] x_0: This can be either 
-            the initial value of the range of interest or a list of two values 
+        :param Union[List, np.ndarray, tuple, float] x_0: This can be either
+            the initial value of the range of interest or a list of two values
             specifying the initial and final values of the range.
         :param Optional[float] x_1 (optional): The final value for the range
-            of interest. If left as None, then x_0 must be a list specifying 
+            of interest. If left as None, then x_0 must be a list specifying
             the initial and final points of the range. Defaults to None.
         :float: Probability of obtaining a value between x_0 & x_1.
         """
@@ -152,15 +160,15 @@ class Uniform_distribution:
     def get_plot_domain(
         self,
     ) -> np.ndarray:  # returns the max y value required to plot this data
-        """Returns the domain of plots generated by this function. This will 
-            consider both the mathematical definition of the function itself as 
+        """Returns the domain of plots generated by this function. This will
+            consider both the mathematical definition of the function itself as
             well as any simulation results.
 
         :np.ndarray: An array of two values indicating the domain of the plot.
         """
-        y_maxs = [self.dist_pdf]
+        y_maxs = [self.dist_pdf_max]
         if self.sim_total_entries > 0:
-            y_maxs.append(self._get_sim_bins_normalized())
+            y_maxs.extend(self._get_sim_bins_normalized())
         return np.array([0, np.max(y_maxs)])
 
     def simulation_iter(self, num_samples: int):  # perform a simulation step
@@ -185,9 +193,9 @@ class Uniform_distribution:
     ):  # updates the distribution to reflect current values and resets all the relevant variables for the simulation
         """Resets internal variables to prepare for a new simulation run.
 
-        :param Optional[List[float]] bin_rng (optional): A list of values 
-            indicating the limits of the bins used to split up the simulation 
-            results. If N bin limits are provided, N-1 bins will be made. 
+        :param Optional[List[float]] bin_rng (optional): A list of values
+            indicating the limits of the bins used to split up the simulation
+            results. If N bin limits are provided, N-1 bins will be made.
             Defaults to None.
         """
         self._create_dist()
@@ -208,12 +216,12 @@ class Uniform_distribution:
         self, figure: go.Figure
     ) -> go.Figure:  # plot the distributions pmf / pdf
         """Plots the distribution and simulation results (if available) on the
-            provided figure. This should only be performed on a figure which 
-            does not contain a plot of the distribution or the simulation 
+            provided figure. This should only be performed on a figure which
+            does not contain a plot of the distribution or the simulation
             results as this will add new plots and not update previous values.
 
         :param go.Figure figure: A plotly.graph_object.Figure.
-        :go.Figure: The Figure with the distribution and simulation results 
+        :go.Figure: The Figure with the distribution and simulation results
             plotted.
         """
         # update the PMF/PDF values of the distribution
@@ -225,6 +233,7 @@ class Uniform_distribution:
             y=self.dist_pdf,
             name="Binomial Expectation",
             marker_color=self.plot_dist_clr,
+            showlegend=True,
         )
 
         if self.sim_total_entries > 0:
@@ -237,10 +246,21 @@ class Uniform_distribution:
                 showlegend=True,
             )
 
+        if self.session_state[self.key_root + "_plot-mean"]:
+            x_mean = self.dist_stats[0]
+            y_max = self.dist_pdf_max
+            figure.add_trace(
+                go.Scatter(
+                    x=[x_mean, x_mean],
+                    y=[0, y_max],
+                    line=dict(color="black"),
+                )
+            )
+
         return figure
 
     def update_sim_plot_data(self, figure: go.Figure, data_idx: int) -> go.Figure:
-        """Updates the simulation data of the plotted figure. Requires the 
+        """Updates the simulation data of the plotted figure. Requires the
             index of the data to be updated.
 
         :param go.Figure figure: A plotly.graph_object.Figure that is to be
@@ -256,16 +276,18 @@ class Uniform_distribution:
     #! Internal Functions
 
     def _create_dist(
-        self, mean: Optional[float] = None, width: Optional[int] = None,
+        self,
+        mean: Optional[float] = None,
+        width: Optional[int] = None,
     ):  # creates the scipy.stats distribution
         """Creates a new instance of a scipy.stats binomial distribution which
-            is stored in the class variable self.dist. The distribution can be 
-            created using specified values for the success rate and number of 
+            is stored in the class variable self.dist. The distribution can be
+            created using specified values for the success rate and number of
             trials or using the classes currently values in self.dist_values.
 
         :param Optional[float] success_rate (optional): Success rate of the
             Bernoulli trials. Must be between 0 & 1. Defaults to None.
-        :param Optional[float] num_trials (optional): Number of Bernoulli 
+        :param Optional[float] num_trials (optional): Number of Bernoulli
             trials. Must be an integer value greater than 0. Defaults to None.
         """
         if mean is not None:
@@ -277,18 +299,20 @@ class Uniform_distribution:
 
         self.dist = stats.uniform(self.dist_values[0], self.dist_values[1])
 
+        self._calc_dist_stats()
+
     def _update_sliders(
         self,
     ):  # updates the slider values to the current class ratio values
         """Updates the slider values to match the class values. This is often
-            done after the class ratios have been normalized.
+        done after the class ratios have been normalized.
         """
         for i, key in enumerate(self.slider_keys):
             self.session_state[key] = self.dist_values[i]
 
     def _update_class_values(self):  # get the values for each slider
         """Updates the class variable self.dist_values to reflect the current
-            slider values.
+        slider values.
         """
         for i, key in enumerate(self.slider_keys):
             self.dist_values[i] = self.session_state[key]
@@ -301,11 +325,11 @@ class Uniform_distribution:
     ) -> Optional[
         List
     ]:  # returns the current sim_bins counts normalized to match the distribution curve
-        """If a simulation has been run, returns the number of entries in each 
-            bin, normalized by the total number of random values used in the 
+        """If a simulation has been run, returns the number of entries in each
+            bin, normalized by the total number of random values used in the
             simulation.
 
-        :Optional[List]: If a simulation has been run a list of float values 
+        :Optional[List]: If a simulation has been run a list of float values
             will be returned. If no simulation has been run, None is returned.
         """
         if self.sim_total_entries == 0:
@@ -320,7 +344,7 @@ class Uniform_distribution:
     ) -> np.ndarray:  # bins the random values from the simulation
         """Bins data from the simulation.
 
-        :param np.ndarray random_vals: An array containing the simulation 
+        :param np.ndarray random_vals: An array containing the simulation
             values.
         :np.ndarray: The count of the number of entries per bin.
         """
@@ -328,12 +352,15 @@ class Uniform_distribution:
         binned_rvs = np.histogram(random_vals, bins=self.sim_bins_markers)
         return binned_rvs
 
-    def _update_dist_pdf(self,):  # returns the PMF/PDF of the distribution
-        """Returns the PMF/PDF values of the distribution calculated at the 
-            middle of each bin used for the simulation results.
+    def _update_dist_pdf(
+        self,
+    ):  # returns the PMF/PDF of the distribution
+        """Returns the PMF/PDF values of the distribution calculated at the
+        middle of each bin used for the simulation results.
         """
         self._create_dist()
         self.dist_pdf = self.dist.pdf(self.sim_bins_mid)
+        self.dist_pdf_max = np.max(self.dist_pdf)
 
     def _update_plot_rng(
         self,
@@ -342,3 +369,7 @@ class Uniform_distribution:
             [self.sim_bins_markers[0] - 0.1, self.sim_bins_markers[-1] + 0.1]
         )
 
+    def _calc_dist_stats(self):
+        dist_stats = self.dist.stats("mvsk")
+
+        self.dist_stats = [float(entry) for entry in dist_stats]

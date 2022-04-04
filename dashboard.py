@@ -10,10 +10,16 @@ from apps import c_Gaussian_app
 from apps import c_Exponential_app
 from apps import c_Beta_app
 
+from apps import test_bernoulli
+
+# This is a diagnostic. Set to True for development, set to False when pushing for general users.
+showWarningOnDirectExecution = False
 
 app = MultiApp()
 
-app.add_app("Dashboard Introduction", introduction_app.app)
+app.add_app("Bernoulli Test", test_bernoulli.app)
+
+# app.add_app("Dashboard Introduction", introduction_app.app)
 app.add_app("Bernoulli Distribution", d_Bernoulli_app.app)
 app.add_app("Binomial Distribution", d_Binomial_app.app)
 app.add_app("Multinomial Distribution", d_Multinomial_app.app)

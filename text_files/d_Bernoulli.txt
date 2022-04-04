@@ -1,25 +1,45 @@
-
 #---#
-
 
 main_title $---$ Bernoulli Distribution - Discrete
 
 #---#
 
-lvl_0_title $---$ Overview: Gaussian Distribution
+lvl_1_title $---$ Overview: Gaussian Distribution
 
 #---#
 
-lvl_0_text $---$ This is where the general information about the Gaussian distribution goes.
+lvl_1_text $---$ The Bernoulli distribution is what describes the classic coin flip problem. When we flip a coin there is some probability, p, that the coin will land with heads up. As a result, there is also the probability, 1-p, that the coin will land tails up instead. The Bernoulli distribution is used to describe the result of a test or outcome of a result where there are only two potential outcomes: heads vs tails, success vs failure, 0 vs 1. In the more general sense, this can be thought of as success vs failure. After flipping a coin, did we get heads? Success or failure?
 
-This is a second sentence.
+The Bernoulli distribution can also be applied in cases where there are more than 2 possible outcomes if we consider the problem as 1 vs All. For example, lets say that we have a dice to roll and we want to model the probability of rolling a 5. We consider rolling a 5 as a successful outcome and rolling all other values as belonging to the failed outcome. While there are a total of 6 possible outcomes when rolling the dice, due to the dice having six sides, we can simplify the problem down to a simple success vs failure.
+
+
+
+The Bernoulli distribution serves as an excelent opportunity to learn what a distribution expectation is and how cumulative distribution function works.
+
+Distribution Expectation - Lets say we flip a coin with an 80% probability of landing heads up. If the coin is heads I pay you a dollar and if it's tail I don't. If we were to flip the coin 100 times, how much money do you expect to have? If we flip a coin with an 80% chance of heads then you 
+
+
+
+If the coin has an 80% chance of heads then you would expect to get paid 80 of the 100 flips so you expect to end up with 80 dollars. The expectation value of a distribution is simply the average value that we expect to get over a sufficiently large number of trials. In the special case of the Bernoulli distribution, the expectation value is simply the probability of success.
+
+Cumulative Distribution Function (CDF) - The CDF provides information about the probability of a group of events happening. 
 
 #---#
 
-lvl_1_title $---$ Another Section
+lvl_2_title $---$ Basic Understanding with some Math
 
 #---#
 
-lvl_1_text $---$ Would you look at that, more text!
+lvl_2_text $---$ Would you look at that, more text!
+
+This is the last sentence.
+
+#---#
+
+lvl_3_title $---$ Another Section
+
+#---#
+
+lvl_3_text $---$ Would you look at that, more text!
 
 This is the last sentence.

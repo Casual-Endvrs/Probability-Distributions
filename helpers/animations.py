@@ -6,23 +6,29 @@ import numpy as np
 import math
 
 
-def create_new_figure(dist = None) :
+def create_new_figure(dist=None):
     figure = go.Figure()
     figure.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
-    if dist is not None :
+
+    if dist is not None:
         x_label = None
-        y_label = None 
-        if hasattr(dist, "x_label") :
+        y_label = None
+        if hasattr(dist, "x_label"):
             x_label = dist.x_label
-        if hasattr(dist, "y_label") :
+        if hasattr(dist, "y_label"):
             y_label = dist.y_label
-        figure.update_layout(
-            xaxis_title = x_label,
-            yaxis_title = y_label
-        )
-        if hasattr(dist, "x_tick_markers") :
-            figure.update_layout(xaxis = dict(tickvals = dist.x_tick_markers[0], ticktext=dist.x_tick_markers[1]))
+        figure.update_layout(xaxis_title=x_label, yaxis_title=y_label)
+        if hasattr(dist, "x_tick_markers"):
+            figure.update_layout(
+                xaxis=dict(
+                    tickvals=dist.x_tick_markers[0], ticktext=dist.x_tick_markers[1]
+                )
+            )
+        if dist.dist_type == "discrete":
+            figure.update_layout(xaxis_showgrid=True, yaxis_showgrid=False)
+
     return figure
+
 
 def plot_add_dists(st_session_state: st.session_state, dists: List):
     figure = st_session_state["go_Figure"]
@@ -43,14 +49,14 @@ def run_simulation(  #! changed input variables
     num_frame_samples: Optional[int] = 100,
     sim_dur: Optional[int] = 5,
 ):
-    """Runs animation to demonstrate the mathematical distribution prediction 
+    """Runs animation to demonstrate the mathematical distribution prediction
         versus simulated results of random variables.
 
     :param st.plotly_chart st_figure: Clean plot to put the results on.
     :param List dists: A list of distributions to plot PMF/PDF and simulation
         results.
-    :param Optional[int] num_frame_samples (optional): Number of random 
-        random variables to generate for each frame of the simulation. Defaults 
+    :param Optional[int] num_frame_samples (optional): Number of random
+        random variables to generate for each frame of the simulation. Defaults
         to 100.
     :param Optional[int] sim_dur (optional): Duration of time, in seconds, for
         the simulation to run over. Defaults to 5.
@@ -77,7 +83,7 @@ def run_simulation(  #! changed input variables
         figure.add_bar(
             x=dist.sim_bins_mid,
             y=dist.sim_bins_cnts,
-            marker_color=None,
+            marker_color=dist.plot_sim_clr,
             name="Simulation",
             showlegend=True,
         )
@@ -87,7 +93,6 @@ def run_simulation(  #! changed input variables
     while True:
         if time.time() >= frame_tm:
             for idx, dist in enumerate(dists):
-                dist = dists[idx]
                 dist.simulation_iter(num_frame_samples)
                 dist.update_sim_plot_data(figure, plt_idxs[idx])
 
@@ -171,7 +176,7 @@ def smooth_zooming_animation(
     nxt_frame_tm = time.time()
     for i in np.arange(num_steps):
         nxt_frame_tm += frame_time
-        sigmoid_x = sigmoid(16 * i / num_steps - 8)
+        sigmoid_x = sigmoid(14 * i / num_steps - 7)
         plt_rng = range_start + rng_diff * sigmoid_x
         plt_dmn = domain_start + dmn_diff * sigmoid_x
         update_plt_rng_dmn(plt_rng, plt_dmn, st_session_state)
@@ -243,7 +248,9 @@ def get_plot_domain(figure: go.Figure, oversize_factor: float = 1.075) -> np.nda
 
 
 def update_plt_rng_dmn(
-    x_range: np.ndarray, y_domain: np.ndarray, st_session_state: st.session_state,
+    x_range: np.ndarray,
+    y_domain: np.ndarray,
+    st_session_state: st.session_state,
 ):
     st_session_state["plot_range"] = x_range
     st_session_state["plot_domain"] = y_domain
@@ -279,4 +286,3 @@ def get_dists_domains(dists: List, oversize_factor: float = 1.075) -> np.ndarray
 
 def sigmoid(x: float) -> float:
     return 1 / (1 + math.exp(-x))
-
