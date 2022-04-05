@@ -379,7 +379,7 @@ class continuous_base_cls:
         with cols[1]:
             st.checkbox(
                 "Plot Cumulative Distribution Function",
-                value=True,
+                value=False,
                 key=self.key_root + "_plot-CDF",
             )
             #! add an option for dual y plots

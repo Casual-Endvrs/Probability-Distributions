@@ -23,10 +23,10 @@ from helpers.animations import (
 # sldr - slider
 
 
-def test_plot_rqrs_reframe(st_state_session: st.session_state):
-    rng_diff = np.abs(st.session_state["plot_range"] - st.session_state["target_range"])
+def test_plot_rqrs_reframe(st_session_state: st.session_state) -> bool:
+    rng_diff = np.abs(st_session_state["plot_range"] - st_session_state["target_range"])
     dmn_diff = np.abs(
-        st.session_state["plot_domain"] - st.session_state["target_domain"]
+        st_session_state["plot_domain"] - st_session_state["target_domain"]
     )
 
     return np.max([rng_diff, dmn_diff]) > 1e-3
