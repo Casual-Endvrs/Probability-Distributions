@@ -17,14 +17,14 @@ showWarningOnDirectExecution = False
 
 app = MultiApp()
 
-app.add_app("Bernoulli Test", test_bernoulli.app)
+# app.add_app("Bernoulli Test", test_bernoulli.app)
 
 # app.add_app("Dashboard Introduction", introduction_app.app)
-app.add_app("Bernoulli Distribution", d_Bernoulli_app.app)
-app.add_app("Binomial Distribution", d_Binomial_app.app)
-app.add_app("Multinomial Distribution", d_Multinomial_app.app)
-app.add_app("Poisson Distribution", d_Poisson_app.app)
-app.add_app("Uniform Distribution", c_Uniform.app)
+# app.add_app("Bernoulli Distribution", d_Bernoulli_app.app)
+# app.add_app("Binomial Distribution", d_Binomial_app.app)
+# app.add_app("Multinomial Distribution", d_Multinomial_app.app)
+# app.add_app("Poisson Distribution", d_Poisson_app.app)
+# app.add_app("Uniform Distribution", c_Uniform.app)
 app.add_app("Gaussian Distribution", c_Gaussian_app.app)
 app.add_app("Exponential Distribution", c_Exponential_app.app)
 app.add_app("Beta Distribution", c_Beta_app.app)

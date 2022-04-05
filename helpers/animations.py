@@ -1,5 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import time
 from typing import Optional, List
 import numpy as np
@@ -7,7 +8,7 @@ import math
 
 
 def create_new_figure(dist=None):
-    figure = go.Figure()
+    figure = make_subplots(specs=[[{"secondary_y": True}]])
     figure.update_layout(xaxis_showgrid=False, yaxis_showgrid=False)
 
     if dist is not None:
@@ -255,7 +256,7 @@ def update_plt_rng_dmn(
     st_session_state["plot_range"] = x_range
     st_session_state["plot_domain"] = y_domain
     st_session_state["go_Figure"].update_xaxes(range=x_range)
-    st_session_state["go_Figure"].update_yaxes(range=y_domain)
+    st_session_state["go_Figure"].update_yaxes(range=y_domain, secondary_y=False)
 
 
 def delay_until_time(delay_until: time.time):

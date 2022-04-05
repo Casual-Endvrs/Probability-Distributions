@@ -16,7 +16,7 @@ from helpers.animations import (
     update_plt_rng_dmn,
     plot_figure,
     smooth_zooming_animation,
-    create_new_figure
+    create_new_figure,
 )
 
 # ddb - drop down box

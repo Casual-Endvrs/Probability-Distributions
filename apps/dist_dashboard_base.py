@@ -47,7 +47,10 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
 
     # * ddb - General information about distribution
     st_expandable_box(
-        st.session_state[dist_name + "_txt_dict"], "lvl_1_title", "lvl_1_text"
+        st.session_state[dist_name + "_txt_dict"],
+        "lvl_1_title",
+        "lvl_1_text",
+        expanded=False,
     )
 
     dist.create_sliders()
