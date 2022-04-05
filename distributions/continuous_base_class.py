@@ -31,7 +31,7 @@ class continuous_base_cls:
         self.plot_rng = None  # range required for distribution plot
 
         self.cdf_arr = (
-            None  # stores the cdf values based on x-values set in self.sim_bins_mid
+            None  # stores the cdf values based on x-values set in self.sim_bins_markers
         )
 
         self.plot_dist_clr = None  # specifies the color of the distribution in the plot
@@ -209,7 +209,7 @@ class continuous_base_cls:
 
         # plot bar graph for the distribution
         figure.add_scatter(
-            x=self.sim_bins_mid,
+            x=self.sim_bins_markers,
             y=self.dist_pdf,
             name=self.key_root + " Expectation",
             marker_color=self.plot_dist_clr,
@@ -271,7 +271,7 @@ class continuous_base_cls:
 
         figure.add_trace(
             go.Scatter(
-                x=self.sim_bins_mid,
+                x=self.sim_bins_markers,
                 y=self.cdf_arr,
                 line=dict(color="black"),
                 name="CDF",
@@ -340,29 +340,28 @@ class continuous_base_cls:
         middle of each bin used for the simulation results.
         """
         self._create_dist()
-        self.dist_pdf = self.dist.pdf(self.sim_bins_mid)
+        self.dist_pdf = self.dist.pdf(self.sim_bins_markers)
         self.dist_pdf_max = np.max(self.dist_pdf)
         self._update_dist_cdf()
 
     def _update_dist_cdf(self):
         """Creates and stores an array of the cdf values across the range of
-            values as specified by self.sim_bins_mid.
+            values as specified by self.sim_bins_markers.
 
         Note: These values can be used to plot the cdf of a continuous
-            distribution directly using self.sim_bins_mid for the x-axis values.
-            Discrete distributions require the plot to include steps. In both
-            cases, please use self.plot_cdf() to avoid potential issues.
+            distribution directly using self.sim_bins_markers for the x-axis
+            values. Discrete distributions require the plot to include steps. In
+            both cases, please use self.plot_cdf() to avoid potential issues.
 
         Uses class variables:
-            - self.sim_bins_mid -> used to determine where cdf values should be
-                calculated for.
+            - self.sim_bins_markers -> used to determine where cdf values should
+                be calculated for.
 
         Sets results in class variables:
-            - self.cdf_arr -> stores the calculated cdf values based on
-                self.sim_bins_mid.
+            - self.cdf_arr -> stores the calculated cdf values.
         """
 
-        self.cdf_arr = self.cdf(self.sim_bins_mid)
+        self.cdf_arr = self.cdf(self.sim_bins_markers)
 
     def _calc_dist_stats(self):
         dist_stats = self.dist.stats("mvsk")
