@@ -48,8 +48,18 @@ class discrete_base_cls:
             None  # stores the cdf values based on x-values set in self.sim_bins_mid
         )
 
-        self.plot_dist_clr = None
-        self.plot_sim_clr = None
+        self.plot_rng = np.array(
+            [0, 1]
+        )  # specifies the range required for the distribution to plot over
+
+        self.plot_dist_clr = None  # specifies the color of the distribution in the plot
+        self.plot_sim_clr = None  # specifies the color of the simulation in the plot
+        self.plot_mean_clr = (
+            None  # specifies the color for the line inicating the distribution mean
+        )
+
+        self.plot_show_cdf = False  # cdf should be included on the plot
+        self.plot_cdf_y2 = True  # cdf should have its own y-axis
         self.plot_cdf_clr = None  # specifies the color of the CDF in the plot
 
         self.dist_stats = None  # [mean, variance, skew, kurtosis]
@@ -85,9 +95,7 @@ class discrete_base_cls:
             the initial and final points of the range. Defaults to None.
         :float: Probability of obtaining a value between x_0 & x_1.
         """
-        if isinstance(x_0, (list, np.ndarray, tuple)):
-            x_1 = x_0[1]
-            x_0 = x_0[0]
+        x_0, x_1 = self._parse_prob_rng(x_0, x_1)
 
         cdf_0 = self.cdf(x_0)
         cdf_1 = self.cdf(x_1)
@@ -111,7 +119,9 @@ class discrete_base_cls:
         return np.sum(self.sim_bins_cnts[bins]) / self.sim_total_entries
 
     def sim_range_probability(
-        self, x_0: Union[List, np.ndarray, tuple, float], x_1: Optional[float] = None
+        self,
+        x_0: Union[List, np.ndarray, tuple, float],
+        x_1: Optional[float] = None,
     ) -> float:  # cdf of the simulation results
         """Returns a single float value for the probability of obtaining a
             value between x_0 and x_1 for the simulation results.
@@ -129,9 +139,7 @@ class discrete_base_cls:
             return 0
 
         # get the indices of the bins for each point of the provided range
-        if isinstance(x_0, (list, np.ndarray, tuple)):
-            x_1 = x_0[1]
-            x_0 = x_0[0]
+        x_0, x_1 = self._parse_prob_rng(x_0, x_1)
 
         cdf_0 = self.sim_cdf(x_0)
         cdf_1 = self.sim_cdf(x_1)
@@ -162,7 +170,8 @@ class discrete_base_cls:
         if self.sim_total_entries > 0:
             y_maxs.extend(self._get_sim_bins_normalized())
 
-        if self.session_state[self.key_root + "_plot-CDF"]:
+        # if self.session_state[self.key_root + "_plot-CDF"]:
+        if self.plot_show_cdf and not self.plot_cdf_y2:
             y_maxs.append(1)
 
         return np.array([0, np.max(y_maxs)])
@@ -206,6 +215,7 @@ class discrete_base_cls:
             name=self.key_root + " Expectation",
             marker_color=self.plot_dist_clr,
             showlegend=True,
+            secondary_y=False,
         )
 
         if self.sim_total_entries > 0:
@@ -216,6 +226,7 @@ class discrete_base_cls:
                 marker_color=self.plot_sim_clr,
                 name=self.key_root + " Simulation",
                 showlegend=True,
+                secondary_y=False,
             )
 
         if self.session_state[self.key_root + "_plot-mean"]:
@@ -225,12 +236,17 @@ class discrete_base_cls:
                 go.Scatter(
                     x=[x_mean, x_mean],
                     y=[0, y_max],
-                    line=dict(color="black"),
-                )
+                    line=dict(color=self.plot_mean_clr),
+                    name=self.key_root + " mean",
+                ),
+                secondary_y=False,
             )
 
-        if self.session_state[self.key_root + "_plot-CDF"]:
+        # if self.session_state[self.key_root + "_plot-CDF"]:
+        if self.plot_show_cdf:
             self.plot_cdf(figure)
+        else:
+            figure.update_layout(yaxis2_showticklabels=False)
 
         return figure
 
@@ -283,6 +299,11 @@ class discrete_base_cls:
 
         x_0_marker = True if use_markers else None
         self._plot_hline(figure, x_0, x_1, cdf_val, self.plot_cdf_clr, x_0_marker, None)
+
+        if self.plot_cdf_y2:
+            figure.update_layout(yaxis2_title="CDF Probability", yaxis2_range=[0, 1])
+        else:
+            figure.update_layout(yaxis2_showticklabels=False)
 
     #! Internal Functions
 
@@ -473,7 +494,8 @@ class discrete_base_cls:
                 line=dict(color=color),
                 marker=dict(opacity=0),
                 showlegend=False,
-            )
+            ),
+            secondary_y=self.plot_cdf_y2,
         )
 
         if x_0_inclusive is not None:
@@ -484,7 +506,8 @@ class discrete_base_cls:
                     line=dict(color=color),
                     marker=dict(size=12),
                     showlegend=False,
-                )
+                ),
+                secondary_y=self.plot_cdf_y2,
             )
             if not x_0_inclusive:
                 figure.add_trace(
@@ -494,7 +517,8 @@ class discrete_base_cls:
                         line=dict(color="white"),
                         marker=dict(size=6),
                         showlegend=False,
-                    )
+                    ),
+                    secondary_y=self.plot_cdf_y2,
                 )
 
         if x_1_inclusive is not None:
@@ -505,7 +529,8 @@ class discrete_base_cls:
                     line=dict(color=color),
                     marker=dict(size=12),
                     showlegend=False,
-                )
+                ),
+                secondary_y=self.plot_cdf_y2,
             )
             if not x_1_inclusive:
                 figure.add_trace(
@@ -515,25 +540,49 @@ class discrete_base_cls:
                         line=dict(color="white"),
                         marker=dict(size=6),
                         showlegend=False,
-                    )
+                    ),
+                    secondary_y=self.plot_cdf_y2,
                 )
 
     def _plt_add_dist_metrics(self):  #! add docs
+        pass
 
-        cols = st.columns(2)
-        with cols[0]:
-            st.checkbox(
-                "Plot Distribution Expectation",
-                value=False,
-                key=self.key_root + "_plot-mean",
-            )
-        with cols[1]:
-            st.checkbox(
-                "Plot Cumulative Distribution Function",
-                value=False,
-                key=self.key_root + "_plot-CDF",
-            )
-            #! add an option for dual y plots
+    #     cols = st.columns(2)
+    #     with cols[0]:
+    #         st.checkbox(
+    #             "Plot Distribution Expectation",
+    #             value=False,
+    #             key=self.key_root + "_plot-mean",
+    #         )
+    #     with cols[1]:
+    #         plt_cdf = st.checkbox(
+    #             "Plot Cumulative Distribution Function",
+    #             value=False,
+    #             key=self.key_root + "_plot-CDF",
+    #         )
+    #         st.checkbox(
+    #             "Plot CDF on seperate y-axis?",
+    #             value=plt_cdf,
+    #             key=self.key_root + "_plot-CDF",
+    #         )
+
+    def _parse_prob_rng(
+        self,
+        x_0: Union[List, np.ndarray, tuple, float],
+        x_1: Optional[float] = None,
+    ) -> np.ndarray:
+        if isinstance(x_0, (list, np.ndarray, tuple)):
+            if len(x_0) == 1:
+                x_1 = x_0[0]
+                x_0 = -np.inf
+            else:
+                x_1 = x_0[1]
+                x_0 = x_0[0]
+        elif x_1 is None:
+            x_1 = x_0
+            x_0 = -np.inf
+
+        return np.array([x_0, x_1])
 
     #! Functions requiring a definition from the child class
 

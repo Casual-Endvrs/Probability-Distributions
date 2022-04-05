@@ -14,7 +14,7 @@ This dashboard is intended to provide a basic introduction to different probabil
 3) A simulation where random numbers are generated using the distribution, and
 4) A plot that shows the current distribution based on its current properties and any simulation results.
 
-
+The plot is often animated to help with illustrations. It should appear as a smooth animation. It may appear choppy if there is a poor internet connection.
 
 #---#
 

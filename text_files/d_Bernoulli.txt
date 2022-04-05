@@ -4,7 +4,7 @@ main_title $---$ Bernoulli Distribution - Discrete
 
 #---#
 
-lvl_1_title $---$ Overview: Gaussian Distribution
+lvl_1_title $---$ Overview: Bernoulli Distribution
 
 #---#
 

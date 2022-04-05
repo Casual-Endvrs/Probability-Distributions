@@ -34,11 +34,23 @@ class continuous_base_cls:
             None  # stores the cdf values based on x-values set in self.sim_bins_markers
         )
 
+        self.plot_rng = np.array(
+            [0, 1]
+        )  # specifies the range required for the distribution to plot over
+
         self.plot_dist_clr = None  # specifies the color of the distribution in the plot
         self.plot_sim_clr = None  # specifies the color of the simulation in the plot
+        self.plot_mean_clr = (
+            None  # specifies the color for the line inicating the distribution mean
+        )
+
+        self.plot_show_cdf = False  # cdf should be included on the plot
+        self.plot_cdf_y2 = True  # cdf should have its own y-axis
         self.plot_cdf_clr = None  # specifies the color of the CDF in the plot
 
         self.dist_stats = None  # [mean, variance, skew, kurtosis]
+
+        self.plt_cdf_secondary_y = False
 
     #! update docs
     def cdf(
@@ -71,9 +83,7 @@ class continuous_base_cls:
             the initial and final points of the range. Defaults to None.
         :float: Probability of obtaining a value between x_0 & x_1.
         """
-        if isinstance(x_0, (list, np.ndarray, tuple)):
-            x_1 = x_0[1]
-            x_0 = x_0[0]
+        x_0, x_1 = self._parse_prob_rng(x_0, x_1)
 
         cdf_0 = self.cdf(x_0)
         cdf_1 = self.cdf(x_1)
@@ -115,9 +125,7 @@ class continuous_base_cls:
             return 0
 
         # get the indices of the bins for each point of the provided range
-        if isinstance(x_0, (list, np.ndarray, tuple)):
-            x_1 = x_0[1]
-            x_0 = x_0[0]
+        x_0, x_1 = self._parse_prob_rng(x_0, x_1)
 
         cdf_0 = self.sim_cdf(x_0)
         cdf_1 = self.sim_cdf(x_1)
@@ -149,7 +157,8 @@ class continuous_base_cls:
             y_maxs.extend(self._get_sim_bins_normalized())
 
         # if self.session_state[self.key_root + "_plot-CDF"]:
-        #     y_maxs.append(1)
+        if self.plot_show_cdf and not self.plot_cdf_y2:
+            y_maxs.append(1)
 
         return np.array([0, np.max(y_maxs)])
 
@@ -235,14 +244,14 @@ class continuous_base_cls:
                 go.Scatter(
                     x=[x_mean, x_mean],
                     y=[0, y_max],
-                    line=dict(color="black"),
+                    line=dict(color=self.plot_mean_clr),
+                    name=self.key_root + " mean",
                 ),
-                # secondary_y=False,
-                xaxis="x1",
-                yaxis="y2",
+                secondary_y=False,
             )
 
-        if self.session_state[self.key_root + "_plot-CDF"]:
+        # if self.session_state[self.key_root + "_plot-CDF"]:
+        if self.plot_show_cdf:
             self.plot_cdf(figure)
 
         return figure
@@ -279,8 +288,16 @@ class continuous_base_cls:
             secondary_y=True,
         )
 
-        figure.update_yaxes(range=[0, 1.05], secondary_y=True)
-        figure.update_layout(yaxis2_showgrid=False)
+        figure.update_yaxes(
+            range=[0, 1.05],
+            secondary_y=True,
+            showgrid=False,
+        )
+
+        if self.plot_cdf_y2:
+            figure.update_layout(yaxis2_title="CDF Probability")
+        else:
+            figure.update_layout(yaxis2_showticklabels=False)
 
     #! Internal Functions
 
@@ -369,20 +386,41 @@ class continuous_base_cls:
         self.dist_stats = [float(entry) for entry in dist_stats]
 
     def _plt_add_dist_metrics(self):  #! add docs
-        cols = st.columns(2)
-        with cols[0]:
-            st.checkbox(
-                "Plot Distribution Expectation",
-                value=False,
-                key=self.key_root + "_plot-mean",
-            )
-        with cols[1]:
-            st.checkbox(
-                "Plot Cumulative Distribution Function",
-                value=False,
-                key=self.key_root + "_plot-CDF",
-            )
-            #! add an option for dual y plots
+        pass
+        # cols = st.columns(2)
+        # with cols[0]:
+        #     st.checkbox(
+        #         "Plot Distribution Expectation",
+        #         value=False,
+        #         key=self.key_root + "_plot-mean",
+        #     )
+        # with cols[1]:
+        #     st.checkbox(
+        #         "Plot Cumulative Distribution Function",
+        #         value=False,
+        #         key=self.key_root + "_plot-CDF",
+        #     )
+
+    def _parse_prob_rng(
+        self,
+        x_0: Union[List, np.ndarray, tuple, float],
+        x_1: Optional[float] = None,
+    ) -> np.ndarray:
+        if isinstance(x_0, (list, np.ndarray, tuple)):
+            if len(x_0) == 1:
+                x_1 = x_0[0]
+                x_0 = -np.inf
+            else:
+                x_1 = x_0[1]
+                x_0 = x_0[0]
+        elif x_1 is None:
+            x_1 = x_0
+            x_0 = -np.inf
+
+        return np.array([x_0, x_1])
 
     def _create_dist(self):
+        pass
+
+    def _update_plot_rng(self):
         pass

@@ -1,10 +1,12 @@
+from tarfile import PAX_FIELDS
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+import plotly.express as px
 from pyprojroot import here as get_proj_root
 import os
 
-#! ${workspaceFolder}/.env
+px_plt_clrs = px.colors.qualitative.G10
 
 from helpers.helper_fns import load_dict_txt, st_expandable_box
 
@@ -21,6 +23,7 @@ from helpers.animations import (
 
 # ddb - drop down box
 # sldr - slider
+# ckbx - checkbox
 
 
 def test_plot_rqrs_reframe(st_session_state: st.session_state) -> bool:
@@ -38,12 +41,18 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
         fil = os.path.join(proj_root, "text_files", text_file)
         st.session_state[dist_name + "_txt_dict"] = load_dict_txt(fil)
     if dist_name + "_dist" not in st.session_state:
-        st.session_state[dist_name + "_dist"] = dist_cls(
-            key_root=dist_name, session_state=st.session_state
-        )
+        dist = dist_cls(key_root=dist_name, session_state=st.session_state)
+
+        dist.plot_dist_clr = px_plt_clrs[0]
+        dist.plot_sim_clr = px_plt_clrs[1]
+        dist.plot_cdf_clr = "black"
+        dist.plot_mean_clr = px_plt_clrs[3]
+
+        st.session_state[dist_name + "_dist"] = dist
+
     dist = st.session_state[dist_name + "_dist"]
 
-    st.header(st.session_state[dist_name + "_txt_dict"]["main_title"])
+    st.title(st.session_state[dist_name + "_txt_dict"]["main_title"])
 
     # * ddb - General information about distribution
     st_expandable_box(
@@ -53,35 +62,87 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
         expanded=False,
     )
 
-    dist.create_sliders()
-    x_rng = dist.get_plot_range()
+    # add distribution parameter controls
+    with st.expander("Distribution Parameters:", expanded=True):
+        dist.create_sliders()
 
-    # * slider for cdf range
-    cdf_rng = st.slider(
-        "Range Probability: CDF(end) - CDF(start)",
-        min_value=float(x_rng[0]),
-        max_value=float(x_rng[1]),
-        step=0.01,
-        value=(float(x_rng[0]), float(x_rng[1])),
-        key="cdf_rng",
-    )
+    # add plot option options
+    with st.expander("Plot Options:", expanded=False):
+        # * ckbx - Select distribution metrics to plot
+        cols = st.columns(2)
+        with cols[0]:
+            st.checkbox(
+                "Plot Distribution Expectation",
+                value=False,
+                key=dist_name + "_plot-mean",
+            )
+        with cols[1]:
+            plt_cdf = st.checkbox(
+                "Plot Cumulative Distribution Function",
+                value=False,
+                key=dist_name + "_plot-CDF",
+            )
+            dist.plot_show_cdf = plt_cdf
+            if dist.dist_type == "discrete":
+                plt_cdf_y2 = st.checkbox(
+                    "Plot CDF on seperate y-axis?",
+                    value=False,
+                    disabled=not plt_cdf,
+                    key=dist_name + "_plot-CDF",
+                )
+                dist.plot_cdf_y2 = plt_cdf_y2
 
-    cols = st.columns(3)
-    with cols[0]:
-        # * ddb: number of trials per frame
-        rvs_p_frame = st.selectbox(
-            "Number of Trials per Frame",
-            options=[1, 3, 10, 30, 100, 300, 1000, 3000, 10000],
-            index=5,
-            key="sim_rvs_p_frame",
+        plt_rng_prob_optn = st.selectbox(
+            "Display CDF or Range Probability?",
+            options=["Neither", "CDF", "Range Probability"],
+            key="plt_rng_prob_optn",
         )
-    with cols[1]:
-        st.markdown("#")  # spacing
-        ttl_rvs = rvs_p_frame * 30 * 5
-        st.write(f"Total number of simulated random variables: {ttl_rvs:,}")
-    with cols[2]:
-        st.markdown("#")  # spacing
-        sim_btn_placeholder = st.empty()
+
+        x_rng = dist.get_plot_range()
+        plt_cdf = False
+        if plt_rng_prob_optn != "Neither":
+            plt_cdf = True
+
+            # * slider for cdf range
+            if plt_rng_prob_optn == "CDF":
+                slider_pos = float(x_rng[1])
+                slider_title = (
+                    "Cumulative Distribution Function: Probability(-infinity --> x)"
+                )
+            else:  # if plt_rng_prob_optn == "Range Probability"
+                slider_pos = (float(x_rng[0]), float(x_rng[1]))
+                slider_title = "Range Probability: CDF(end) - CDF(start)"
+
+            cdf_rng = st.slider(
+                slider_title,
+                min_value=float(x_rng[0]),
+                max_value=float(x_rng[1]),
+                step=0.01,
+                value=slider_pos,
+                key="cdf_rng",
+            )
+
+            if plt_rng_prob_optn == "CDF":
+                cdf_rng = [cdf_rng]
+
+    # add simulation controls
+    with st.expander("Simulation Controls:", expanded=False):
+        cols = st.columns(3)
+        with cols[0]:
+            # * ddb: number of trials per frame
+            rvs_p_frame = st.selectbox(
+                "Number of Trials per Frame",
+                options=[1, 3, 10, 30, 100, 300, 1000, 3000, 10000],
+                index=5,
+                key="sim_rvs_p_frame",
+            )
+        with cols[1]:
+            st.markdown("#")  # spacing
+            ttl_rvs = rvs_p_frame * 30 * 5
+            st.write(f"Total number of simulated random variables: {ttl_rvs:,}")
+        with cols[2]:
+            st.markdown("#")  # spacing
+            sim_btn_placeholder = st.empty()
 
     #! working
 
@@ -89,6 +150,7 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
     fig = st.session_state["go_Figure"]
     st.session_state["st_plotly_chart"] = st.plotly_chart(fig, use_container_width=True)
 
+    # get required domain and range for the plot
     if "plot_range" not in st.session_state:
         plot_range = get_dists_range([dist], oversize_factor=1)
         plot_domain = get_dists_domains([dist])
@@ -101,23 +163,25 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
     plot_add_dists(st.session_state, [dist])
     plot_figure(st.session_state)
 
-    if st.session_state[dist_name + "_plot-CDF"]:
+    if plt_cdf:
         # * plot bars indicating cdf range
         y_rng = st.session_state["target_domain"]
-        cdf_line_lbls = ["CDF Range Start", "CDF Range End"]
-        for i in np.arange(2):
+        if len(cdf_rng) == 1:
+            line_lbls = ["CDF Range End"]
+        else:
+            line_lbls = ["Range Start", "Range end"]
+        for i in np.arange(len(cdf_rng)):
             fig.add_trace(
                 go.Scatter(
                     x=[cdf_rng[i], cdf_rng[i]],
                     y=[y_rng[0], y_rng[1]],
-                    line=dict(color="black"),
-                    name=cdf_line_lbls[i],
+                    line=dict(color=px_plt_clrs[4]),
+                    name=line_lbls[i],
                 )
             )
 
         # * get cdf values
         dist_cdf = dist.range_probability(cdf_rng)
-
         # * print cdf value on the plot
         cdf_plt_txt = [f"<b>CDF (Distribution) = {dist_cdf:.3f}</b>"]
         if dist.sim_total_entries > 0:
@@ -137,8 +201,6 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
                 )
             )
 
-    # st.session_state["go_Figure"] = fig
-
     plot_figure(st.session_state)
 
     sim_btn_placeholder.button(
@@ -155,6 +217,7 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
         expanded=True,
     )
 
+    # animate pan/zoom if required
     if test_plot_rqrs_reframe(st.session_state):
         smooth_zooming_animation(
             st_session_state=st.session_state, animation_duration=2, dists=[dist]
