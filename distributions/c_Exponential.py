@@ -65,9 +65,9 @@ class Exponential_distribution(continuous_base_cls):
 
         self._calc_dist_stats()
 
-    def _update_plot_rng(
+    def _update_plot_dmn(
         self,
     ):  # updates the required plot range based on current distribution parameters
         plt_min = 0
         plt_max = self.dist.ppf(0.999)
-        self.plot_rng = np.array([plt_min, plt_max])
+        self.plot_dmn = np.array([plt_min, plt_max])

@@ -146,8 +146,8 @@ class continuous_base_cls:
 
         :np.ndarray: An array of two values indicating the domain of the plot.
         """
-        self._update_plot_rng()
-        return self.plot_rng
+        self._update_plot_dmn()
+        return self.plot_dmn
 
     def get_plot_range(
         self,
@@ -365,7 +365,8 @@ class continuous_base_cls:
         """
         self._create_dist()
         self.dist_pdf = self.dist.pdf(self.sim_bins_markers)
-        self.dist_pdf_max = np.max(self.dist_pdf)
+        idxs = self.dist_pdf != np.inf
+        self.dist_pdf_max = np.amax(self.dist_pdf[idxs])
         self._update_dist_cdf()
 
     def _update_dist_cdf(self):
