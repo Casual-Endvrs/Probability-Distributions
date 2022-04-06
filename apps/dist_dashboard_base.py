@@ -226,5 +226,5 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
     # animate pan/zoom if required
     if test_plot_rqrs_reframe(st.session_state):
         smooth_zooming_animation(
-            st_session_state=st.session_state, animation_duration=2, dists=[dist]
+            st_session_state=st.session_state, animation_duration=1.5, dists=[dist]
         )

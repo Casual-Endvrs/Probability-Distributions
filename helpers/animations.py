@@ -183,13 +183,22 @@ def smooth_zooming_animation(
         [range_stop[0] - range_start[0], range_stop[1] - range_start[1]]
     )
 
+    # exception that allows for reduced animation time if making small changes
+    sigmoid_factor = 12
+    if np.max([np.abs(dmn_diff), np.abs(rng_diff)]) < animation_duration:
+        vals = [0.75]
+        vals.extend(np.abs(dmn_diff))
+        vals.extend(np.abs(rng_diff))
+        animation_duration = np.max(vals)
+        sigmoid_factor = 11
+
     num_steps = int(30 * animation_duration)
     frame_time = animation_duration / num_steps
 
     nxt_frame_tm = time.time()
     for i in np.arange(num_steps):
         nxt_frame_tm += frame_time
-        sigmoid_x = sigmoid(14 * i / num_steps - 7)
+        sigmoid_x = sigmoid(sigmoid_factor * i / num_steps - sigmoid_factor / 2.0)
         plt_dmn = domain_start + dmn_diff * sigmoid_x
         plt_rng = range_start + rng_diff * sigmoid_x
         update_plt_rng_dmn(plt_dmn, plt_rng, st_session_state)
