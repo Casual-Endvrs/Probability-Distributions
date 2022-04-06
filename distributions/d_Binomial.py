@@ -1,8 +1,7 @@
-from typing import Optional, Union, List
+from typing import Optional, List
 import streamlit as st
 import scipy.stats as stats
 import numpy as np
-import plotly.graph_objects as go
 from distributions.discrete_base_class import discrete_base_cls
 
 

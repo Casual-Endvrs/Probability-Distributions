@@ -1,4 +1,3 @@
-from tarfile import PAX_FIELDS
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
