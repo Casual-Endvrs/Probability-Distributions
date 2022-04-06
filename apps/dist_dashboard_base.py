@@ -133,6 +133,14 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
 
     # add simulation controls
     with st.expander("Simulation Controls:", expanded=False):
+        st.markdown(
+            "Simulations will generate random variables based on the user defined distribution. "
+            "The number of trials specifies the number of random variables to generate per animated frame. "
+            "The animated simulation runs over 5 seconds resulting in 150 frames total. "
+            'Generated random variable are "binned" together to create the histogram that is plotted.  \n'
+            "Try using 1 trial / frame to see what happens with small sample sets. "
+            "How is this different when a large sample set is used (10,000 trials/frame)? "
+        )
         cols = st.columns(3)
         with cols[0]:
             # * ddb: number of trials per frame
