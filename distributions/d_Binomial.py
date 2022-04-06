@@ -17,6 +17,12 @@ class Binomial_distribution(discrete_base_cls):
 
         self.dist_values = np.array([0.5, 0.5])  # list of the distribution properties
         self.num_trials = 50  # number of trials
+        self.plot_dmn = np.array(
+            [-1, 2]
+        )  # specifies the domain required for the distribution to plot over
+        self.plot_rng = np.array(
+            [0, 1]
+        )  # specifies the y-range required for the distribution to plot over
 
         self.x_label = "Random Value"
         self.y_label = "Probability"
@@ -26,8 +32,6 @@ class Binomial_distribution(discrete_base_cls):
 
     def create_sliders(self):  # create the required class sliders
         """Creates the sliders that are required to define the distribution."""
-        self._plt_add_dist_metrics()
-
         classes = ["Success Rate", "Failure Rate"]
         for i in np.arange(2):
             slider_text = classes[i]  # "Class: " + str(i + 1)
@@ -128,7 +132,7 @@ class Binomial_distribution(discrete_base_cls):
         self.num_trials = self.session_state[self.slider_keys[2]]
         self.reset_sim()
 
-    def _update_plot_rng(
+    def _update_plot_dmn(
         self,
     ):  # updates the required plot range based on current distribution parameters
-        self.plot_rng = np.array([-1, self.num_trials + 1])
+        self.plot_dmn = np.array([-1, self.num_trials + 1])

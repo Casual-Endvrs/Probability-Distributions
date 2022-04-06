@@ -27,8 +27,6 @@ class Beta_distribution(continuous_base_cls):
 
     def create_sliders(self):  # create the required class sliders
         """Creates the sliders that are required to define the distribution."""
-        self._plt_add_dist_metrics()
-
         classes = ["Alpha", "Beta"]
         rngs = [[0.01, 5.0], [0.01, 5.0]]
 

@@ -25,8 +25,6 @@ class Uniform_distribution(continuous_base_cls):
 
     def create_sliders(self):  # create the required class sliders
         """Creates the sliders that are required to define the distribution."""
-        self._plt_add_dist_metrics()
-
         classes = ["Lowest Value", "Distribution Width"]
         rngs = [[-5.0, 5.0], [0.1, 5.0]]
         for i in np.arange(2):

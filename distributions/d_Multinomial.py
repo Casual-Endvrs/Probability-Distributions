@@ -22,9 +22,13 @@ class Multinomial_distribution(discrete_base_cls):
         self.dist_values = (
             np.ones(self.num_classes) / self.num_classes
         )  # list of the distribution properties
-        self.plot_rng = np.array(
+
+        self.plot_dmn = np.array(
             [-1, 2]
-        )  # list of two values indicating the required range for this distribution to be plotted over
+        )  # specifies the domain required for the distribution to plot over
+        self.plot_rng = np.array(
+            [0, 1]
+        )  # specifies the y-range required for the distribution to plot over
 
         #! Note: The mean value is calculated but variance, skew & kurtosis are set to zero, 0
         self.dist_stats = None  # [mean, variance, skew, kurtosis]
@@ -37,9 +41,6 @@ class Multinomial_distribution(discrete_base_cls):
 
     def create_sliders(self):  # create the required class sliders
         """Creates the sliders that are required to define the distribution."""
-
-        self._plt_add_dist_metrics()
-
         for i in np.arange(self.num_classes):
             slider_text = "Class: " + str(i + 1)
             ref_label = self.key_root + "_" + str(i)
@@ -137,10 +138,10 @@ class Multinomial_distribution(discrete_base_cls):
         self.dist_pdf_max = np.max(self.dist_pdf)
         self._update_dist_cdf()
 
-    def _update_plot_rng(
+    def _update_plot_dmn(
         self,
     ):  # updates the required plot range based on current distribution parameters
-        self.plot_rng = np.array([0, self.num_classes + 1])
+        self.plot_dmn = np.array([0, self.num_classes + 1])
 
     def _calc_dist_stats(self):
         dist_mean = np.sum(self.dist_values * np.arange(1, self.num_classes + 1))

@@ -34,7 +34,7 @@ def create_new_figure(dist=None):
 def plot_add_dists(st_session_state: st.session_state, dists: List):
     figure = st_session_state["go_Figure"]
     for dist in dists:
-        figure = dist.plot_distribution(figure)
+        dist.plot_distribution(figure)
 
     set_target_rng_dmn(st_session_state, dists)
 
@@ -62,6 +62,14 @@ def run_simulation(  #! changed input variables
     :param Optional[int] sim_dur (optional): Duration of time, in seconds, for
         the simulation to run over. Defaults to 5.
     """
+    prev_dist_plt_opts = []
+    for dist in dists:
+        prev_dist_plt_opts.append([])
+        prev_dist_plt_opts[-1].append(dist.plot_show_cdf)
+        prev_dist_plt_opts[-1].append(dist.plot_show_mean)
+        dist.plot_show_cdf = False
+        dist.plot_show_mean = False
+
     plt_idxs = []
     num_dists = len(dists)
     for dist in dists:
@@ -109,6 +117,10 @@ def run_simulation(  #! changed input variables
         st_session_state=st_session_state, animation_duration=0.5, dists=dists
     )
 
+    for idx, dist in enumerate(dists):
+        dist.plot_show_cdf = prev_dist_plt_opts[idx][0]
+        dist.plot_show_mean = prev_dist_plt_opts[idx][1]
+
 
 def smooth_zoom_step(
     st_session_state: st.session_state,
@@ -120,29 +132,29 @@ def smooth_zoom_step(
     figure = st_session_state["go_Figure"]
 
     # get initial domain and range for the current plot
-    range_start = np.array(st_session_state["plot_range"])
     domain_start = np.array(st_session_state["plot_domain"])
+    range_start = np.array(st_session_state["plot_range"])
 
     # get final domain and range for the plot
-    range_stop = get_range(figure, dists=dists, oversize_factor=1)
-    domain_stop = get_domain(figure, dists=dists, oversize_factor=1.075)
+    domain_stop = get_domain(figure, dists=dists, oversize_factor=1)
+    range_stop = get_range(figure, dists=dists, oversize_factor=1.05)
 
     # create step sizes
-    rng_ss = (
-        np.array([range_stop[0] - range_start[0], range_stop[1] - range_start[1]])
-        / step_factor
-    )
     dmn_ss = (
         np.array([domain_stop[0] - domain_start[0], domain_stop[1] - domain_start[1]])
         / step_factor
     )
+    rng_ss = (
+        np.array([range_stop[0] - range_start[0], range_stop[1] - range_start[1]])
+        / step_factor
+    )
 
     # update range and domain
-    range_start += rng_ss
     domain_start += dmn_ss
+    range_start += rng_ss
 
     # update plot
-    update_plt_rng_dmn(range_start, domain_start, st_session_state)
+    update_plt_rng_dmn(domain_start, range_start, st_session_state)
     st_plotly_chart.plotly_chart(figure)
 
 
@@ -156,19 +168,19 @@ def smooth_zooming_animation(
     figure = st_session_state["go_Figure"]
 
     # get initial domain and range for the current plot
-    range_start = np.array(st_session_state["plot_range"])
     domain_start = np.array(st_session_state["plot_domain"])
+    range_start = np.array(st_session_state["plot_range"])
 
     # get final domain and range for the plot
-    range_stop = get_range(figure, dists=dists, oversize_factor=1)
-    domain_stop = get_domain(figure, dists=dists, oversize_factor=1.075)
+    domain_stop = get_domain(figure, dists=dists, oversize_factor=1)
+    range_stop = get_range(figure, dists=dists, oversize_factor=1.05)
 
     # create step sizes
-    rng_diff = np.array(
-        [range_stop[0] - range_start[0], range_stop[1] - range_start[1]]
-    )
     dmn_diff = np.array(
         [domain_stop[0] - domain_start[0], domain_stop[1] - domain_start[1]]
+    )
+    rng_diff = np.array(
+        [range_stop[0] - range_start[0], range_stop[1] - range_start[1]]
     )
 
     num_steps = int(30 * animation_duration)
@@ -178,47 +190,34 @@ def smooth_zooming_animation(
     for i in np.arange(num_steps):
         nxt_frame_tm += frame_time
         sigmoid_x = sigmoid(14 * i / num_steps - 7)
-        plt_rng = range_start + rng_diff * sigmoid_x
         plt_dmn = domain_start + dmn_diff * sigmoid_x
-        update_plt_rng_dmn(plt_rng, plt_dmn, st_session_state)
+        plt_rng = range_start + rng_diff * sigmoid_x
+        update_plt_rng_dmn(plt_dmn, plt_rng, st_session_state)
         st_plotly_chart.plotly_chart(figure)
         delay_until_time(nxt_frame_tm)
 
-    update_plt_rng_dmn(range_stop, domain_stop, st_session_state)
+    update_plt_rng_dmn(domain_stop, range_stop, st_session_state)
     st_plotly_chart.plotly_chart(figure)
 
 
 def set_target_rng_dmn(st_session_state: st.session_state, dists: list):
-    rng = get_dists_range(dists, oversize_factor=1)
-    dmn = get_dists_domains(dists, oversize_factor=1.075)
-    st_session_state["target_range"] = rng
+    dmn = get_dists_domains(dists, oversize_factor=1)
+    rng = get_dists_range(dists, oversize_factor=1.05)
     st_session_state["target_domain"] = dmn
+    st_session_state["target_range"] = rng
 
 
 def plot_use_ssn_stt_rng_dmn(st_session_state: st.session_state):
-    x_range = st_session_state["plot_range"]
-    y_domain = st_session_state["plot_domain"]
-    update_plt_rng_dmn(x_range, y_domain, st_session_state)
+    x_domain = st_session_state["plot_domain"]
+    y_range = st_session_state["plot_range"]
+    update_plt_rng_dmn(x_domain, y_range, st_session_state)
     st_session_state["st_plotly_chart"].plotly_chart(st_session_state["go_Figure"])
-
-
-def get_range(
-    figure: Optional[go.Figure] = None,
-    dists: Optional[List] = None,
-    oversize_factor: Optional[float] = 1.075,
-) -> np.ndarray:
-    if dists is not None:
-        return get_dists_range(dists, oversize_factor)
-    elif figure is not None:
-        return get_plot_range(figure, oversize_factor)
-    else:
-        return np.array([0, 1])
 
 
 def get_domain(
     figure: Optional[go.Figure] = None,
     dists: Optional[List] = None,
-    oversize_factor: Optional[float] = 1.075,
+    oversize_factor: Optional[float] = 1.05,
 ) -> np.ndarray:
     if dists is not None:
         return get_dists_domains(dists, oversize_factor)
@@ -228,35 +227,48 @@ def get_domain(
         return np.array([0, 1])
 
 
-def get_plot_range(figure: go.Figure, oversize_factor: float = 1.075) -> np.ndarray:
-    fig_data = figure["data"]
-    y_data = []
+def get_range(
+    figure: Optional[go.Figure] = None,
+    dists: Optional[List] = None,
+    oversize_factor: Optional[float] = 1.05,
+) -> np.ndarray:
+    if dists is not None:
+        return get_dists_range(dists, oversize_factor)
+    elif figure is not None:
+        return get_plot_range(figure, oversize_factor)
+    else:
+        return np.array([0, 1])
 
-    for i in np.arange(len(fig_data)):
-        y_data.extend(fig_data[i]["x"])
 
-    return np.array([np.min(y_data), np.max(y_data)]) * oversize_factor
-
-
-def get_plot_domain(figure: go.Figure, oversize_factor: float = 1.075) -> np.ndarray:
+def get_plot_domain(figure: go.Figure, oversize_factor: float = 1.05) -> np.ndarray:
     fig_data = figure["data"]
     x_data = []
 
     for i in np.arange(len(fig_data)):
-        x_data.extend(fig_data[i]["y"])
+        x_data.extend(fig_data[i]["x"])
 
     return np.array([np.min(x_data), np.max(x_data)]) * oversize_factor
 
 
+def get_plot_range(figure: go.Figure, oversize_factor: float = 1.05) -> np.ndarray:
+    fig_data = figure["data"]
+    y_data = []
+
+    for i in np.arange(len(fig_data)):
+        y_data.extend(fig_data[i]["y"])
+
+    return np.array([np.min(y_data), np.max(y_data)]) * oversize_factor
+
+
 def update_plt_rng_dmn(
-    x_range: np.ndarray,
-    y_domain: np.ndarray,
+    x_domain: np.ndarray,
+    y_range: np.ndarray,
     st_session_state: st.session_state,
 ):
-    st_session_state["plot_range"] = x_range
-    st_session_state["plot_domain"] = y_domain
-    st_session_state["go_Figure"].update_xaxes(range=x_range)
-    st_session_state["go_Figure"].update_yaxes(range=y_domain, secondary_y=False)
+    st_session_state["plot_domain"] = x_domain
+    st_session_state["plot_range"] = y_range
+    st_session_state["go_Figure"].update_xaxes(range=x_domain)
+    st_session_state["go_Figure"].update_yaxes(range=y_range, secondary_y=False)
 
 
 def delay_until_time(delay_until: time.time):
@@ -265,7 +277,7 @@ def delay_until_time(delay_until: time.time):
             break
 
 
-def get_dists_range(dists: List, oversize_factor: float = 1.075) -> np.ndarray:
+def get_dists_range(dists: List, oversize_factor: float = 1.05) -> np.ndarray:
     ranges = []
 
     for dist in dists:
@@ -274,7 +286,7 @@ def get_dists_range(dists: List, oversize_factor: float = 1.075) -> np.ndarray:
     return np.array([np.min(ranges), np.max(ranges)], dtype=np.float) * oversize_factor
 
 
-def get_dists_domains(dists: List, oversize_factor: float = 1.075) -> np.ndarray:
+def get_dists_domains(dists: List, oversize_factor: float = 1.05) -> np.ndarray:
     domains = []
 
     for dist in dists:

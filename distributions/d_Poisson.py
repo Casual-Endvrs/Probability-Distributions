@@ -17,6 +17,13 @@ class Poisson_distribution(discrete_base_cls):
         self.dist_values = np.array(
             [5.0]
         )  # list of the distribution properties - [mean, variance]
+        self.plot_dmn = np.array(
+            [0, 1]
+        )  # specifies the domain required for the distribution to plot over
+        self.plot_rng = np.array(
+            [0, 1]
+        )  # specifies the y-range required for the distribution to plot over
+
         self.plot_dist_clr = None  # specifies the color of the distribution in the plot
         self.plot_sim_clr = None  # specifies the color of the simulation in the plot
 
@@ -33,8 +40,6 @@ class Poisson_distribution(discrete_base_cls):
 
     def create_sliders(self):  # create the required class sliders
         """Creates the sliders that are required to define the distribution."""
-        self._plt_add_dist_metrics()
-
         ref_label = self.key_root + "_" + "Lambda"
         sldr_val = float(self.dist_values[0])
 
@@ -62,7 +67,7 @@ class Poisson_distribution(discrete_base_cls):
         """
         self._create_dist()
 
-        [dist_start, dist_end] = self.get_plot_range()
+        [dist_start, dist_end] = self.get_plot_domain()
 
         num_bins = dist_end - dist_start + 1
 
@@ -106,8 +111,8 @@ class Poisson_distribution(discrete_base_cls):
         self.reset_sim()
         self._create_dist()
 
-    def _update_plot_rng(
+    def _update_plot_dmn(
         self,
     ):  # updates the required plot range based on current distribution parameters
         plt_max = int(self.dist.ppf(0.9999) + 1)
-        self.plot_rng = np.array([-1, plt_max])
+        self.plot_dmn = np.array([-1, plt_max])

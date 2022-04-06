@@ -16,9 +16,12 @@ class Bernoulli_distribution(discrete_base_cls):
         super().__init__(key_root, session_state, norm_method)
 
         self.dist_values = np.array([0.5, 0.5])  # list of the distribution properties
-        self.plot_rng = np.array(
+        self.plot_dmn = np.array(
             [-1, 2]
-        )  # list of two values indicating the required range for this distribution to be plotted over
+        )  # specifies the domain required for the distribution to plot over
+        self.plot_rng = np.array(
+            [0, 1]
+        )  # specifies the y-range required for the distribution to plot over
 
         self.x_label = "Random Outcome"
         self.y_label = "Probability"
@@ -29,8 +32,6 @@ class Bernoulli_distribution(discrete_base_cls):
 
     def create_sliders(self):  # create the required class sliders
         """Creates the sliders that are required to define the distribution."""
-        self._plt_add_dist_metrics()
-
         classes = ["Success Rate", "Failure Rate"]
         for i in np.arange(2):
             slider_text = classes[i]  # "Class: " + str(i + 1)
@@ -95,7 +96,7 @@ class Bernoulli_distribution(discrete_base_cls):
         for i, key in enumerate(self.slider_keys):
             self.session_state[key] = self.dist_values[1 - i]
 
-    def _update_plot_rng(
+    def _update_plot_dmn(
         self,
     ):  # updates the required plot range based on current distribution parameters
-        self.plot_rng = [-1, 2]
+        self.plot_dmn = [-1, 2]

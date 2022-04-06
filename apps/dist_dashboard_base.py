@@ -27,12 +27,12 @@ from helpers.animations import (
 
 
 def test_plot_rqrs_reframe(st_session_state: st.session_state) -> bool:
-    rng_diff = np.abs(st_session_state["plot_range"] - st_session_state["target_range"])
     dmn_diff = np.abs(
         st_session_state["plot_domain"] - st_session_state["target_domain"]
     )
+    rng_diff = np.abs(st_session_state["plot_range"] - st_session_state["target_range"])
 
-    return np.max([rng_diff, dmn_diff]) > 1e-3
+    return np.max([dmn_diff, rng_diff]) > 1e-3
 
 
 def dashboard_template(dist_cls, dist_name: str, text_file: str):
@@ -71,11 +71,12 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
         # * ckbx - Select distribution metrics to plot
         cols = st.columns(2)
         with cols[0]:
-            st.checkbox(
+            plt_dist_mean = st.checkbox(
                 "Plot Distribution Expectation",
                 value=False,
                 key=dist_name + "_plot-mean",
             )
+            dist.plot_show_mean = plt_dist_mean
         with cols[1]:
             plt_cdf = st.checkbox(
                 "Plot Cumulative Distribution Function",
@@ -95,10 +96,10 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
         plt_rng_prob_optn = st.selectbox(
             "Display CDF or Range Probability?",
             options=["Neither", "CDF", "Range Probability"],
-            key="plt_rng_prob_optn",
+            key=dist_name + "_plt_rng_prob_optn",
         )
 
-        x_rng = dist.get_plot_range()
+        x_rng = dist.get_plot_domain()
         plt_cdf = False
         if plt_rng_prob_optn != "Neither":
             plt_cdf = True
@@ -113,11 +114,16 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
                 slider_pos = (float(x_rng[0]), float(x_rng[1]))
                 slider_title = "Range Probability: CDF(end) - CDF(start)"
 
+            if dist.dist_type == "discrete":
+                step_size = 0.5
+            else:
+                step_size = 0.01
+
             cdf_rng = st.slider(
                 slider_title,
                 min_value=float(x_rng[0]),
                 max_value=float(x_rng[1]),
-                step=0.01,
+                step=step_size,
                 value=slider_pos,
                 key="cdf_rng",
             )
@@ -151,13 +157,13 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
     st.session_state["st_plotly_chart"] = st.plotly_chart(fig, use_container_width=True)
 
     # get required domain and range for the plot
-    if "plot_range" not in st.session_state:
-        plot_range = get_dists_range([dist], oversize_factor=1)
-        plot_domain = get_dists_domains([dist])
-        st.session_state["plot_range"] = plot_range
+    if "plot_domain" not in st.session_state:
+        plot_domain = get_dists_domains([dist], oversize_factor=1)
+        plot_range = get_dists_range([dist])
         st.session_state["plot_domain"] = plot_domain
-        st.session_state["target_range"] = plot_range
+        st.session_state["plot_range"] = plot_range
         st.session_state["target_domain"] = plot_domain
+        st.session_state["target_range"] = plot_range
         update_plt_rng_dmn(plot_range, plot_domain, st.session_state)
 
     plot_add_dists(st.session_state, [dist])
@@ -165,7 +171,7 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
 
     if plt_cdf:
         # * plot bars indicating cdf range
-        y_rng = st.session_state["target_domain"]
+        y_rng = st.session_state["target_range"]
         if len(cdf_rng) == 1:
             line_lbls = ["CDF Range End"]
         else:
@@ -222,3 +228,10 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
         smooth_zooming_animation(
             st_session_state=st.session_state, animation_duration=2, dists=[dist]
         )
+
+
+def run_sim(key_root: str, st_session_state: st.session_state):
+
+    prev_plt_opts = [
+        st_session_state[""],
+    ]

@@ -26,8 +26,6 @@ class Exponential_distribution(continuous_base_cls):
 
     def create_sliders(self):  # create the required class sliders
         """Creates the sliders that are required to define the distribution."""
-        self._plt_add_dist_metrics()
-
         ref_label = self.key_root + "_" + "Lambda"
 
         sldr_val = float(self.dist_values[0])

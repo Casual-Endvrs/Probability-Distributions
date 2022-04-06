@@ -8,7 +8,7 @@ from helpers.helper_fns import load_dict_txt, st_expandable_box
 def app():
     st.markdown(
         "### Known issue:\n"
-        "There is currently a known bug where the app may stop responding. "
+        "There is a known bug where the app may stop responding. "
         "Sliders and options will still change but the plot will not update. "
         "If the app stops responding for more than 5 seconds and you do not see "
         "the running icon in the top right corner, please refresh the page."
@@ -21,15 +21,21 @@ def app():
         (st.session_state["intro_txt_dict"]) = load_dict_txt(fil)
 
     st_expandable_box(
-        st.session_state["intro_txt_dict"], "dashboard_title", "dashboard_usage"
+        st.session_state["intro_txt_dict"],
+        "dashboard_title",
+        "dashboard_usage",
+        expanded=True,
     )
 
     st_expandable_box(
-        st.session_state["intro_txt_dict"], "level_outline_title", "level_outline_text"
+        st.session_state["intro_txt_dict"],
+        "level_outline_title",
+        "level_outline_text",
+        expanded=True,
     )
 
     st.markdown(
         "### Source Code:\n"
-        "If you are interested in the source code for this project, it can be found at: "
+        "If you are interested in the source code for this project, it can be found at:  \n"
         "https://github.com/Casual-Endvrs/Probability-Distributions"
     )
