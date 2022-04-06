@@ -228,10 +228,3 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
         smooth_zooming_animation(
             st_session_state=st.session_state, animation_duration=2, dists=[dist]
         )
-
-
-def run_sim(key_root: str, st_session_state: st.session_state):
-
-    prev_plt_opts = [
-        st_session_state[""],
-    ]

@@ -218,7 +218,7 @@ class discrete_base_cls:
         figure.add_bar(
             x=self.sim_bins_mid,
             y=self.dist_pdf,
-            name=self.key_root + " Expectation",
+            name=self.key_root + " Probability",
             marker_color=self.plot_dist_clr,
             showlegend=True,
             secondary_y=False,

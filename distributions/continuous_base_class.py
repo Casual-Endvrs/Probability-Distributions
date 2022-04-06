@@ -227,7 +227,7 @@ class continuous_base_cls:
         figure.add_scatter(
             x=self.sim_bins_markers,
             y=self.dist_pdf,
-            name=self.key_root + " Expectation",
+            name=self.key_root + " Density",
             marker_color=self.plot_dist_clr,
             showlegend=True,
             secondary_y=False,
