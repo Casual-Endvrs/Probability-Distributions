@@ -56,10 +56,53 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
     # * ddb - General information about distribution
     st_expandable_box(
         st.session_state[dist_name + "_txt_dict"],
-        "lvl_1_title",
-        "lvl_1_text",
+        "introduction_title",
+        "introduction_text",
         expanded=False,
     )
+
+    # * ddb - General information about distribution
+    st_expandable_box(
+        st.session_state[dist_name + "_txt_dict"],
+        "sample_space_title",
+        "sample_space_text",
+        expanded=False,
+    )
+
+    # * ddb - General information about distribution
+    st_expandable_box(
+        st.session_state[dist_name + "_txt_dict"],
+        "probability_mass_title",
+        "probability_mass_text",
+        expanded=False,
+    )
+
+    # * ddb - General information about distribution
+    st_expandable_box(
+        st.session_state[dist_name + "_txt_dict"],
+        "expectation_title",
+        "expectation_text",
+        expanded=False,
+    )
+
+    # * ddb - General information about distribution
+    st_expandable_box(
+        st.session_state[dist_name + "_txt_dict"],
+        "cumulative_density_title",
+        "cumulative_density_text",
+        expanded=False,
+    )
+
+    # * ddb - General information about distribution
+    st_expandable_box(
+        st.session_state[dist_name + "_txt_dict"],
+        "variance_title",
+        "variance_text",
+        expanded=False,
+    )
+
+    # horizontal line seperator between text and controls
+    st.markdown("""---""")
 
     # add distribution parameter controls
     with st.expander("Distribution Parameters:", expanded=True):
@@ -71,21 +114,21 @@ def dashboard_template(dist_cls, dist_name: str, text_file: str):
         cols = st.columns(2)
         with cols[0]:
             plt_dist_mean = st.checkbox(
-                "Plot Distribution Expectation",
+                "Show Distribution Expectation",
                 value=False,
                 key=dist_name + "_plot-mean",
             )
             dist.plot_show_mean = plt_dist_mean
         with cols[1]:
             plt_cdf = st.checkbox(
-                "Plot Cumulative Distribution Function",
+                "Show Cumulative Distribution Function",
                 value=False,
                 key=dist_name + "_plot-CDF",
             )
             dist.plot_show_cdf = plt_cdf
             if dist.dist_type == "discrete":
                 plt_cdf_y2 = st.checkbox(
-                    "Plot CDF on seperate y-axis?",
+                    "Show CDF on seperate y-axis?",
                     value=False,
                     disabled=not plt_cdf,
                     key=dist_name + "_plot-CDF",
