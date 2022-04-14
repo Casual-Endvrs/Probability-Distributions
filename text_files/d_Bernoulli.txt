@@ -4,42 +4,125 @@ main_title $---$ Bernoulli Distribution - Discrete
 
 #---#
 
-lvl_1_title $---$ Overview: Bernoulli Distribution
+introduction_title $---$ Overview: Bernoulli Distribution
 
 #---#
 
-lvl_1_text $---$ The Bernoulli distribution is what describes the classic coin flip problem. When we flip a coin there is some probability, p, that the coin will land with heads up. As a result, there is also the probability, 1-p, that the coin will land tails up instead. The Bernoulli distribution is used to describe the result of a test or outcome of a result where there are only two potential outcomes: heads vs tails, success vs failure, 0 vs 1. In the more general sense, this can be thought of as success vs failure. After flipping a coin, did we get heads? Success or failure?
+introduction_text 
 
-The Bernoulli distribution can also be applied in cases where there are more than 2 possible outcomes if we consider the problem as 1 vs All. For example, lets say that we have a dice to roll and we want to model the probability of rolling a 5. We consider rolling a 5 as a successful outcome and rolling all other values as belonging to the failed outcome. While there are a total of 6 possible outcomes when rolling the dice, due to the dice having six sides, we can simplify the problem down to a simple success vs failure.
+$---$ 
+
+The Bernoulli distribution is what describes the classic coin flip problem. When we flip a coin there is some probability, p, that the coin will land heads up. As a result, there is also the probability, 1-p, that the coin will land tails up instead. The Bernoulli distribution is used to describe the result or outcome of a trial (a Bernoulli trial) where there are only two potential outcomes: 0 vs 1, heads vs tails, success vs failure.
+
+
+The Bernoulli distribution can also be applied in cases where there are more than 2 possible outcomes if we consider the problem as 1 vs All. For example, lets say that we have a dice to roll and we want to model the probability of rolling a 5. We consider rolling a 5 as a successful outcome and rolling all other values as belonging to the failed outcome. While there are a total of 6 possible outcomes when rolling the dice, due to the dice having six sides, we have simplified the problem down to a simple trial for success (5) or failure (not 5).
+
+There are several important terms and concepts when it comes to distributions. We will introduce the terms using the Bernoulli distribution which is simple enough to allow examples with numbers while, hopefully, still keeping the math headaches to a minimum. These terms include: sample space, expectation, variance, cumulative distribution, and probability density or probability mass. Probability mass is used for discrete distributions and will be discussed here while probability density is a topic for continuous distributions so that will be discussed a with the Uniform distribution. The other terms are relivant to both continuous and discrete distributions so they will be introduced here.
 
 
 
-The Bernoulli distribution serves as an excelent opportunity to learn what a distribution expectation is and how cumulative distribution function works.
+#---#
 
-Distribution Expectation - Lets say we flip a coin with an 80% probability of landing heads up. If the coin is heads I pay you a dollar and if it's tail I don't. If we were to flip the coin 100 times, how much money do you expect to have? If we flip a coin with an 80% chance of heads then you 
+sample_space_title $---$ Sample Space
 
+#---#
+
+sample_space_text 
+
+$---$ 
+
+**Sample Space** - A capital X in an equation is referring to the sample space. This is a set of numbers, or any type of outcome, which answers the question, "What are all the possible outcomes that we can get from the distribution?" (A "set" is the fancy mathemetians why of saying a list.) For example, if we flip a coin there are two possible outcomes, heads and tails. So, the sample space, X, of a coin flip is: heads or tails. Mathematically this can be written as: X={heads, tails}. A few other examples include:
+
+- Bernoulli distribution: A Bernoulli distribution can have the outcomes of 0 or 1, X={0, 1}. We can choose to use failure/success or heads/tails instead of 0/1, a simple relabelling of the outcomes. I'll leave it as 0/1 here as we will use these values in future math examples. On the plot for the Bernoulli distribution below, you will see that there are 2 vertical bars, one for each of the possible outcomes, 0 & 1 or Failure & Success.
+
+- Rolling Dice: Dice is an example of a Multinomial distribution; however, since it has more than 2 possible outcomes it is a useful example. Lets say we roll a 6-sided dice. In this case the complete list of all possible values that we could roll are the number 1 to 6. The sample space for the dice is then: X={1, 2, 3, 4, 5, 6}.
+
+Note: When you encounter a lower case "x" in an equation, it is referring to a single possible value from the distribution's sample space, X. The Bernoulli distribution has the sample space X={0, 1}, so little x could be a 0 or a 1.
+
+
+
+
+#---#
+
+probability_mass_title $---$ Probability Mass Function
+
+#---#
+
+probability_mass_text 
+
+$---$ 
+
+**Probability Mass Function** - This is a function which takes as input a single value, x, and returns the probability of getting that value. In a box below called "Distribution Parameters," try setting the "1 - Success Rate" to 0.8 and look at the graph. You will find that the bar for the "1 - Success" outcome has moved to 0.8 and the bar for the "0 - Failure" outcome has dropped to 0.2. This tells us that the probability of "1 - Success Rate" is 0.8, 80%, and the probability of "0 - Failure" is 0.2, 20%. It is important to know that the probabilities for each outcome will always sum to 1. Mathematically this is expressed as:
+
+latex_eq{
+\sum_{x \in X} P(x) = 1
+}end_eq
+
+The weird lettering, x&in;X, under the sum symbol, &sum;, is less complicated than it appears. In this case we can understand x&in;X as "for each value x in the set X."
+
+If we consider the example of the Bernoulli distribution where the the probability of outcome 1, or success, is 0.8, then the previous equation is:
+
+latex_eq{
+    \begin{align*}
+        \sum_{x \in \{0,1\} } P(x) &= P(0) + P(1) \\
+        &= 0.2 + 0.8 \\
+        &= 1
+    \end{align*}
+}end_eq
+
+
+
+
+#---#
+
+expectation_title $---$ Expectation
+
+#---#
+
+expectation_text 
+
+$---$ 
+
+**Expectation** - Lets say we flip a coin with an 80% probability of landing heads up. If the coin is heads I pay you a dollar and if it's tail I don't. If we were to flip the coin 100 times, how much money do you expect to have? The expectation is calculated by considering each case independently and multiplying the amount to win by the probability of that case, and then adding up all of those value together.
+
+latex_eq{
+    E[X] = \sum _{x \in X} x * P(x)
+}end_eq
+
+In English, this can be read as: the expectation for a distribution is equal to the sum of value of each individual value, x, from all of the possible values, X, times the probability of that individual value, P(x).
+
+
+In English, this can be read as: the expectation for a distribution is equal to the sum of each value, x, multiplied by the probability of x, P(x), for all possible values of the distribution, X.
 
 
 If the coin has an 80% chance of heads then you would expect to get paid 80 of the 100 flips so you expect to end up with 80 dollars. The expectation value of a distribution is simply the average value that we expect to get over a sufficiently large number of trials. In the special case of the Bernoulli distribution, the expectation value is simply the probability of success.
 
+
+
+
+#---#
+
+cumulative_density_title $---$ Cumulative Density Function
+
+#---#
+
+cumulative_density_text 
+
+$---$ 
+
 Cumulative Distribution Function (CDF) - The CDF provides information about the probability of a group of events happening. 
 
-#---#
 
-lvl_2_title $---$ Basic Understanding with some Math
 
-#---#
-
-lvl_2_text $---$ Would you look at that, more text!
-
-This is the last sentence.
 
 #---#
 
-lvl_3_title $---$ Another Section
+variance_title $---$ Variance
 
 #---#
 
-lvl_3_text $---$ Would you look at that, more text!
+variance_text 
 
-This is the last sentence.
+$---$ 
+
+
