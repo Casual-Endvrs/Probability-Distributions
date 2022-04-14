@@ -49,6 +49,9 @@ def text_keys_in_dict(dictionary: dict, *keys: List[str]) -> bool:
 def st_expandable_box(
     txt_dict: dict, title_key: str, text_key: Optional[str] = None, expanded=True
 ):
+    if not text_keys_in_dict(txt_dict, title_key, text_key):
+        return
+
     text = txt_dict[text_key]
 
     with st.expander(txt_dict[title_key], expanded=expanded):

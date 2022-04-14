@@ -31,7 +31,7 @@ class Bernoulli_distribution(discrete_base_cls):
 
     def create_sliders(self):  # create the required class sliders
         """Creates the sliders that are required to define the distribution."""
-        classes = ["Success Rate", "Failure Rate"]
+        classes = ["1 - Success Rate", "0 - Failure Rate"]
         for i in np.arange(2):
             slider_text = classes[i]  # "Class: " + str(i + 1)
             ref_label = self.key_root + "_" + str(1 - i)
